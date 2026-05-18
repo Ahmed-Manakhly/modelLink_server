@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../modelLink_client"
+		},
+		{
+			"path": "../modelLink_planning"
+		}
+	],
+	"settings": {}
+}
