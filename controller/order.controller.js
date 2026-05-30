@@ -38,7 +38,7 @@ exports.getAllOrders = asyncErrorCatching( async ( req , res , next ) => {
         role: req.user.role,
         event: "getAllOrders",
         outcome: "Success",
-        orders
+        orderCount: orders.length
     }, "User successfully retrieved orders");
 
     res.status(200).send({
@@ -69,7 +69,7 @@ exports.getOrdersByModel = asyncErrorCatching( async ( req , res , next ) => {
         role: req.user.role,
         event: "getAllOrders",
         outcome: "Success",
-        orders
+        orderCount: orders.length
     }, "User successfully retrieved orders");
 
     res.status(200).send({
@@ -101,7 +101,7 @@ exports.getOrdersByDev = asyncErrorCatching( async ( req , res , next ) => {
         role: req.user.role,
         event: "getAllOrders",
         outcome: "Success",
-        orders
+        orderCount: orders.length
     }, "User successfully retrieved orders");
 
     res.status(200).send({
@@ -133,7 +133,7 @@ exports.getOrdersByClient = asyncErrorCatching( async ( req , res , next ) => {
         role: req.user.role,
         event: "getAllOrders",
         outcome: "Success",
-        orders
+        orderCount: orders.length
     }, "User successfully retrieved orders");
 
     res.status(200).send({
