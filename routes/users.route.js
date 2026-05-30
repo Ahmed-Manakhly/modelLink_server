@@ -5,9 +5,9 @@ const authController = require('../controller/auth.controller');
 // Logged-in user profile
 router.use(authController.protect);
 
-router.get('/me', authController.getMe);
-router.patch('/me', authController.uploadUserFiles, authController.updateMe);
+router.get('/', authController.getMe);
+router.patch('/', authController.uploadUserFiles, authController.updateMe);
 router.patch('/change-password', authController.changePassword);
-router.get('/users/:id', authController.getUserPublicProfile);
+router.get('/:id', authController.getUserPublicProfile);
 
 module.exports = router;

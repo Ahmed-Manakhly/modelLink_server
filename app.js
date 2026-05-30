@@ -36,6 +36,8 @@ const app = express();
 const allowedOrigins = [
     'https://66dedc51c84f8d239a9adb2f--melodious-starlight-977ab6.netlify.app',
     'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'http://192.168.1.103:3001',
     "http://localhost:5173",
     "http://localhost:5175",
     "http://localhost:5174",
@@ -95,16 +97,11 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10kb' }));
 
 app.use(xss());
-// direct logger for audits instead of per-request (req.logger)
-// app.use((req, res, next) => {
-//     req.logger = logger.child({
-//         requestId: uuid.v4(),
-//         ip: req.ip,
-//         type: "audit",
-//         authType: req.headers["authorization"] ? 'Bearer' : 'None',
-//     });
-//     next();
-// });
+// Attach a unique request ID to every request for logging and tracing
+app.use((req, res, next) => {
+    req.id = uuid.v4();
+    next();
+});
 
 app.get("/", (req, res) => {
     res.send("server is running...");

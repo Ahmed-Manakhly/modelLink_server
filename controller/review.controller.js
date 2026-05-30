@@ -3,6 +3,7 @@ const asyncErrorCatching = require("../utils/asyncErrorCatching");
 const errorMessages = require("../utils/errorMessages");
 const prisma = require("../prisma/prisma");
 const APIFeatures = require("../utils/apiFeature");
+const logger = require("../utils/logger");
 
 
 exports.getAllReviews = asyncErrorCatching(async (req, res, next) => {
@@ -37,7 +38,7 @@ exports.getAllReviews = asyncErrorCatching(async (req, res, next) => {
         }
     });
 
-    req.logger.info({
+    logger.info({
         userid: req.user.id,
         username: req.user.username,
         userRole: req.user.role,
@@ -130,7 +131,7 @@ exports.getReview = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(404, errorMessages.REVIEW_NOT_FOUND));
     }
 
-    req.logger.info({
+    logger.info({
         userid: req.user.id,
         username: req.user.username,
         userRole: req.user.role,
@@ -190,7 +191,7 @@ exports.createReview = asyncErrorCatching(async (req, res, next) => {
             totalStars : totalStars + star
         },
     });
-    req.logger.info({
+    logger.info({
         userid: req.user.id,
         username: req.user.username,
         event: "createReview",
@@ -244,7 +245,7 @@ exports.updateReview = asyncErrorCatching(async (req, res, next) => {
         }
     });
 
-    req.logger.info({
+    logger.info({
         userid: req.user.id,
         username: req.user.username,
         event: "updateReview",
@@ -289,7 +290,7 @@ exports.deleteReview = asyncErrorCatching(async (req, res, next) => {
         },
     });
 
-    req.logger.info({
+    logger.info({
         userid: req.user.id,
         username: req.user.username,
         userRole: req.user.role,

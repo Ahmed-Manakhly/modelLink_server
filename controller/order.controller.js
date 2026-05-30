@@ -4,6 +4,7 @@ const errorMessages = require("../utils/errorMessages");
 const prisma = require("../prisma/prisma");
 const Stripe = require( "stripe" ) ;
 const APIFeatures = require("../utils/apiFeature");
+const logger = require("../utils/logger");
 
 exports.getAllOrders = asyncErrorCatching( async ( req , res , next ) => {
     const operation = new APIFeatures(req.query)
@@ -31,7 +32,7 @@ exports.getAllOrders = asyncErrorCatching( async ( req , res , next ) => {
 
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -62,7 +63,7 @@ exports.getOrdersByModel = asyncErrorCatching( async ( req , res , next ) => {
 
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -94,7 +95,7 @@ exports.getOrdersByDev = asyncErrorCatching( async ( req , res , next ) => {
 
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -126,7 +127,7 @@ exports.getOrdersByClient = asyncErrorCatching( async ( req , res , next ) => {
 
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -188,7 +189,7 @@ exports.getOrder = asyncErrorCatching(async (req, res, next) => {
     });
     order = {...order , clientData , developerData ,aiModelData}
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -250,7 +251,7 @@ exports.createOrderIntent = asyncErrorCatching(async (req, res, next) => {
         },
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -305,7 +306,7 @@ exports.confirmOrder = asyncErrorCatching(async (req, res, next) => {
         },
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
@@ -349,7 +350,7 @@ exports.deleteOrder = asyncErrorCatching(async (req, res, next) => {
         },
     });
 
-    req.logger.info({
+    logger.info({
         userCustomId: req.user.customId,
         username: req.user.org_username,
         role: req.user.role,
