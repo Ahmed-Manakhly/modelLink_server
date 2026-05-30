@@ -4,6 +4,7 @@
  * @description This function checks if the password is complex enough for HIPAA compliance
  * @returns {boolean}
  */
+// -------------------------------
 const isComplexPassword = (password) => {
 
     // Check if the password length is at least 12 characters
@@ -27,14 +28,19 @@ const isComplexPassword = (password) => {
 
     return true;
 }
-
+// -------------------------------
 const isPasswordExpired = (user) => {
     const sixMonthsInMicroseconds = 6 * 30 * 24 * 60 * 60 * 1000;
-    const {password_change} = user;
+    const { password_change } = user;
     const currentTimeStamp = Date.now();
 
     // check if the password was changed more than 6 months ago
     return currentTimeStamp - password_change > sixMonthsInMicroseconds;
 };
-
-module.exports = {isComplexPassword, isPasswordExpired};
+// -------------------------------
+const isValidEmail = (email) => {
+    const basicRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return basicRegex.test(email);
+};
+// -------------------------------
+module.exports = { isComplexPassword, isPasswordExpired, isValidEmail };

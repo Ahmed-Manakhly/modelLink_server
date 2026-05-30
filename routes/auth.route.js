@@ -1,11 +1,13 @@
-const router = require( "express" ).Router();
-const authController = require( '../controller/auth.controller' );
 
+const router = require("express").Router();
+const authController = require('../controller/auth.controller');
 
-router.post( '/register', authController.register) ;
-router.post( '/login', authController.login) ;
+// Public auth (marketplace CLIENT / DEVELOPER)
+router.post('/login', authController.login);
+router.post('/register', authController.uploadUserFiles, authController.register);
+// -------------------
+router.post('/create-email-token', authController.createEmailToken);
+router.patch('/reset-password', authController.resetPassword);
+router.get('/verify-email', authController.verifyEmailToken);
 
-router.post( '/logout', authController.protect,  authController.logout) ;
-router.get( "/me", authController.protect,  authController.getMe) ;
-
-module.exports = router ;
+module.exports = router;

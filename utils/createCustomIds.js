@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const prefixes = {
     'CLIENT': 'CL',
     'ADMIN': 'AD',
+    'EMPLOYEE': 'EM',
     'DEVELOPER': 'DV'
 };
 

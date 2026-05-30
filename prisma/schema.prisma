@@ -166,6 +166,7 @@ model Review {
 
 enum UserRole {
   ADMIN
+  EMPLOYEE
   DEVELOPER
   CLIENT
 }

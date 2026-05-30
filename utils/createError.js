@@ -1,23 +1,20 @@
 /**
  * @name CreateError
- * @description This class is used to handle custom errors
- * @param message
- * @param statusCode
- * @description This class is used to handle custom errors
+ * @description This class is used to create a new error
+ * @param {string} message - The error message
+ * @param {number} statusCode - The status code
+ * @type {function(*, *): void}
  */
+
 class CreateError extends Error {
     constructor(statusCode, message) {
-
-        // call the parent constructor
         super(message);
-        this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
         this.statusCode = statusCode;
-        this.message = message;
+        this.status = statusCode >= 400 && statusCode < 500 ? 'fail' : 'exception error';
         this.isOperational = true;
-
-        // capture the stack trace
         Error.captureStackTrace(this, this.constructor);
     }
 }
 
-module.exports= CreateError;
+
+module.exports = CreateError

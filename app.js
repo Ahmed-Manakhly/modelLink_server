@@ -14,20 +14,20 @@ const logger = require("./utils/logger");
 
 const {
     authRoute,
+    usersRoute,
+    usersAdminRoute,
+    // ----------------
     converstioinRoute,
     gigRoute,
     messageRoute,
     orderRoute,
     reviewRoute,
-    userRoute, // foe admin
-    userMeRoute, // foe profile
     companyRoute,
     aiModelRoute,
     moduleRoute,
     targetRoute,
     ruleRoute,
-    notificationRoute,
-    emailTokenRoute
+    notificationRoute
 
 } = require("./routes");
 
@@ -39,8 +39,7 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5175",
     "http://localhost:5174",
-    // "https://wondrous-starburst-6392cd.netlify.app",
-    // "http://127.0.0.1:5173",
+    "http://127.0.0.1:5173",
     'https://aiex.netlify.app',
     'http://localhost:3000'
 ];
@@ -93,19 +92,19 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kb'}));
+app.use(express.json({ limit: '10kb' }));
 
 app.use(xss());
-
-app.use((req, res, next) => {
-    req.logger = logger.child({
-        requestId: uuid.v4(),
-        ip: req.ip,
-        type: "audit",
-        authType: req.headers["authorization"]? 'Bearer' : 'None',
-    });
-    next();
-});
+// direct logger for audits instead of per-request (req.logger)
+// app.use((req, res, next) => {
+//     req.logger = logger.child({
+//         requestId: uuid.v4(),
+//         ip: req.ip,
+//         type: "audit",
+//         authType: req.headers["authorization"] ? 'Bearer' : 'None',
+//     });
+//     next();
+// });
 
 app.get("/", (req, res) => {
     res.send("server is running...");
@@ -113,9 +112,11 @@ app.get("/", (req, res) => {
 
 
 
-app.use("/api/users", userRoute); // foe admin
-app.use("/api/users-me", userMeRoute); // foe profile
+
 app.use("/api/auth", authRoute);
+app.use("/api/users", usersRoute);
+app.use("/api/admin/users", usersAdminRoute);
+// --------------------------
 app.use("/api/gigs", gigRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/conversations", converstioinRoute);
@@ -126,8 +127,7 @@ app.use("/api/aiModel", aiModelRoute);
 app.use("/api/module", moduleRoute);
 app.use("/api/target", targetRoute);
 app.use("/api/rule", ruleRoute);
-app.use("/api/notification", notificationRoute); // by manakhly
-app.use("/api/emailToken", emailTokenRoute); // by manakhly
+app.use("/api/notification", notificationRoute);
 
 
 app.all("*", (req, res, next) => {

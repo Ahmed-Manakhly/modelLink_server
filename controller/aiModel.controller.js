@@ -171,7 +171,7 @@ exports.getAllAiModels = asyncErrorCatching(async (req,res)=>{
     const take = 12
     const skip  = ( page - 1) * take
     const nextPage = !((skip + take) >= filteredDataCount)
-    if(skip >= filteredDataCount ){
+    if(filteredDataCount > 0 && skip >= filteredDataCount ){
         throw new Error("this page is not found!")
     }
     const numberOfPages =  Math.ceil(filteredDataCount / take) ;

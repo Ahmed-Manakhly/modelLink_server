@@ -1,5 +1,5 @@
-const router = require( "express" ).Router()
-const { createAiModel,getAllAiModels,deleteAiModel,getAiModel,updateAiModel,getUserAiModels } = require( "../controller/aiModel.controller" );
+const router = require("express").Router()
+const { createAiModel, getAllAiModels, deleteAiModel, getAiModel, updateAiModel, getUserAiModels } = require("../controller/aiModel.controller");
 const authController = require("../controller/auth.controller");
 
 //================================================
