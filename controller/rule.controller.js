@@ -102,11 +102,10 @@ exports.deleteRule = asyncErrorCatching(async (req, res) => {
         },
     });
 
-    res.status(200)
-        .json({
-            status: "success",
-            message: "Rule deleted successfully!"
-        });
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
 });
 
 exports.getRule = asyncErrorCatching(async (req, res) => {

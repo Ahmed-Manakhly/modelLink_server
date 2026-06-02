@@ -299,10 +299,8 @@ exports.deleteReview = asyncErrorCatching(async (req, res, next) => {
         reviewId: review.id,
     }, "User successfully deleted a review");
 
-    res.status(204).send({
+    res.status(204).json({
         status: "success",
         data: null,
     });
 });
-
-

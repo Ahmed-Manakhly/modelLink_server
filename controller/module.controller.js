@@ -53,11 +53,10 @@ exports.deleteModule = asyncErrorCatching(async (req,res)=>{
         },
     });
 
-    res.status(200)
-        .json({
-            status: "success",
-            message: "Module deleted successfully!"
-        });
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
 });
 
 exports.getModule = asyncErrorCatching(async(req,res)=>{

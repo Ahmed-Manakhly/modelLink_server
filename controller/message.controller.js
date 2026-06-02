@@ -2,6 +2,7 @@
 // const Conversation = require("../models/conversation.model");
 // const createError = require("../utils/createError");
 const prisma = require("../prisma/prisma"); // by manakhly
+const logger = require("../utils/logger");
 
 const path = require('path')
 const multer  = require('multer')
@@ -24,11 +25,11 @@ const createMessage = async (req, res, next) => { // by manakhly
     // let attachment = req?.file?.filename?req.file.filename:null
     if (req?.file?.filename){
       desc = req?.file?.filename
-      userId = +req.query.userId
+      userId = req.query.userId
       conversationId = +req.query.conversationId
     }else {
       desc = req.body.desc
-      userId = +req.body.userId
+      userId = req.body.userId
       conversationId = +req.body.conversationId
     }
     //===========================================================
@@ -53,13 +54,13 @@ const createMessage = async (req, res, next) => { // by manakhly
         clientCopy = await prisma.Conversation.create({
           data : {
             lastMessage : '',
-            developerId : +developerId,
-            clientId : +clientId,
+            developerId : developerId,
+            clientId : clientId,
             readByDeveloper: false,
             readByClient: false,
             updatedAt : new Date() ,
             unReadMsg : 0,
-            copyFor : +clientId
+            copyFor : clientId
           }
         })
       }
@@ -75,13 +76,13 @@ const createMessage = async (req, res, next) => { // by manakhly
         devCopy = await prisma.Conversation.create({
           data : {
             lastMessage : '',
-            developerId : +developerId,
-            clientId : +clientId,
+            developerId : developerId,
+            clientId : clientId,
             readByDeveloper: false,
             readByClient: false,
             updatedAt : new Date() ,
             unReadMsg : 0,
-            copyFor : +developerId
+            copyFor : developerId
           }
         })
       }
@@ -107,7 +108,7 @@ const createMessage = async (req, res, next) => { // by manakhly
       })
         await prisma.Conversation.update({
         where: {
-            id: parseInt(devCopyId)
+            id: devCopyId
         },
         data: {
           lastMessage : desc,
@@ -117,7 +118,7 @@ const createMessage = async (req, res, next) => { // by manakhly
       });
         await prisma.Conversation.update({
         where: {
-            id: parseInt(clientCopyId)
+            id: clientCopyId
         },
         data: {
           lastMessage : desc,
@@ -146,7 +147,7 @@ const createMessage = async (req, res, next) => { // by manakhly
 const getMessages = async (req, res, next) => {// by manakhly
   const {id} = req?.params;
   if(!id){
-    console.log('not found')
+    logger.warn({ event: "getMessages", outcome: "Failed", message: "Conversation ID not provided" });
     return
   }else{
     const messages = await prisma.Message.findMany({
@@ -160,7 +161,7 @@ const getMessages = async (req, res, next) => {// by manakhly
     if(id){
       await prisma.Conversation.updateMany({
         where: {
-            id: parseInt(id)
+            id: Number(id)
         },
         data: {
           unReadMsg : 0,

@@ -5,22 +5,22 @@ const createConversation = async (req, res, next) => { // by manakhly
   //===============================================
   const devCopyFind = await prisma.Conversation.findFirst({
     where: {
-      clientId: +clientId,
-      developerId : +developerId,
-      copyFor : +developerId
+      clientId: clientId,
+      developerId : developerId,
+      copyFor : developerId
     }
   });
   if(!devCopyFind){
     await prisma.Conversation.create({
       data : {
         lastMessage : '',
-        developerId : +developerId,
-        clientId : +clientId,
+        developerId : developerId,
+        clientId : clientId,
         readByDeveloper: false,
         readByClient: false,
         updatedAt : new Date() ,
         unReadMsg : 0,
-        copyFor : +developerId
+        copyFor : developerId
       }
     })
   }
@@ -28,13 +28,13 @@ const createConversation = async (req, res, next) => { // by manakhly
     const clientCopy = await prisma.Conversation.create({
       data : {
         lastMessage : '',
-        developerId : +developerId,
-        clientId : +clientId,
+        developerId : developerId,
+        clientId : clientId,
         readByDeveloper: false,
         readByClient: false,
         updatedAt : new Date() ,
         unReadMsg : 0,
-        copyFor : +clientId
+        copyFor : clientId
       }
     })
   res.status(201).json({
@@ -52,7 +52,7 @@ const getConversations = async (req, res, next) => { //by manakhly
       updatedAt : 'desc'
     },
     where: {
-      copyFor: parseInt(id)
+      copyFor: id
     }
   });
   res.status(200).json({
@@ -100,12 +100,10 @@ const deleteConversation  = async (req, res, next) => {
           conversationId: parseInt(convoId)
         }
       });
-      res.status(200).json({
-        status: "success",
-        data: {
-          message : 'conversation has been deleted'
-        },
-    });
+      res.status(204).json({
+          status: 'success',
+          data: null
+      });
     }
   }
 }

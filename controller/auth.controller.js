@@ -10,7 +10,7 @@ const sendEmail = require('../utils/email');
 const bcrypt = require('bcrypt');
 const { uploadingFiles } = require('../utils/fileUploader');
 const { getFiles, parseJSONField } = require('../utils/helpers');
-const { generateOptions, safeUserFields } = require('../utils/ApiFeaturesHelpersForUsers');
+const { generateOptions, safeUserFields, publicUserFields } = require('../utils/ApiFeaturesHelpersForUsers');
 const ApiFeatures = require('../utils/ApiFeatures');
 const errorMessages = require("../utils/errorMessages");
 const createCustomIds = require("../utils/createCustomIds");
@@ -153,7 +153,7 @@ exports.createEmployee = asyncErrorCatching(async (req, res, next) => {
     req.options = {
         forcedRole: UserRole.EMPLOYEE,
         roleValidation: (role) => {
-            if (role) {
+            if (role && role !== UserRole.EMPLOYEE) {
                 return {
                     isError: true,
                     roleError: new createError(400, errorMessages.ROLE_ASSIGNMENT_NOT_ALLOWED),
@@ -253,37 +253,18 @@ exports.register = asyncErrorCatching(async (req, res, next) => {
 });
 
 exports.login = asyncErrorCatching(async (req, res, next) => {
-    const org_username = req.body.org_username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
 
-    if (!org_username || !password) {
-        return next(new createError(400, errorMessages.USERNAME_AND_PASSWORD_REQUIRED));
+    if (!email || !password) {
+        return next(new createError(400, "email and password are required !"));
     }
 
     const user = await prisma.user.findUnique({
-        where: { org_username },
+        where: { email },
     });
 
-    if (!user || !bcrypt.compareSync(password, user.password)) {
-        if (user) {
-            if (user.failed_attempts >= 10) {
-                return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
-            }
-
-            const failedAttempts = user.failed_attempts + 1;
-            const updateData = { failed_attempts: failedAttempts };
-
-            if (failedAttempts === 10) {
-                updateData.isActive = false;
-                updateData.lockup = new Date();
-            }
-
-            await prisma.user.update({
-                where: { org_username },
-                data: updateData,
-            });
-        }
-
+    if (!user) {
         return next(new createError(401, errorMessages.INVALID_CREDENTIALS));
     }
 
@@ -291,12 +272,33 @@ exports.login = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(401, errorMessages.ACCOUNT_IS_LOCKED));
     }
 
+    if (!bcrypt.compareSync(password, user.password)) {
+        if (user.failed_attempts >= 10) {
+            return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
+        }
+
+        const failedAttempts = user.failed_attempts + 1;
+        const updateData = { failed_attempts: failedAttempts };
+
+        if (failedAttempts === 10) {
+            updateData.isActive = false;
+            updateData.lockup = new Date();
+        }
+
+        await prisma.user.update({
+            where: { email },
+            data: updateData,
+        });
+
+        return next(new createError(401, errorMessages.INVALID_CREDENTIALS));
+    }
+
     if (isPasswordExpired(user)) {
         return next(new createError(401, errorMessages.PASSWORD_EXPIRED));
     }
 
     await prisma.user.update({
-        where: { org_username },
+        where: { email },
         data: { failed_attempts: 0 },
     });
 
@@ -591,12 +593,16 @@ exports.getUserPublicProfile = asyncErrorCatching(async (req, res, next) => {
     }
 
     const user = await prisma.user.findUnique({
-        where: { id: Number(id) },
-        select: safeUserFields,
+        where: { id },
+        select: publicUserFields,
     });
 
     if (!user) {
         return next(new createError(404, errorMessages.USER_NOT_FOUND));
+    }
+
+    if (STAFF_ROLES.includes(user.role)) {
+        return next(new createError(403, "Marketplace staff profiles are private."));
     }
 
     res.status(200).json({ status: 'success', data: { user } });
@@ -733,7 +739,7 @@ exports.getUserById = asyncErrorCatching(async (req, res, next) => {
     }
 
     const user = await prisma.user.findUnique({
-        where: { id: Number(id) },
+        where: { id },
         select: safeUserFields,
     });
 
@@ -754,15 +760,15 @@ exports.updateUser = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.USER_ID_REQUIRED));
     }
 
-    const exUser = await prisma.user.findUnique({ where: { id: Number(id) } });
+    const exUser = await prisma.user.findUnique({ where: { id } });
     if (!exUser) {
         logger.error('Failed to update user', { error: 'User not found!', requestId: req.id });
         return next(new createError(404, errorMessages.USER_NOT_FOUND));
     }
 
-    if (isStaffRole(exUser.role) && req.user.role !== UserRole.ADMIN) {
-        logger.error('Failed to update user', { error: 'Cannot update staff user!', requestId: req.id });
-        return next(new createError(400, errorMessages.CANNOT_UPDATE_STAFF_USER));
+    if (exUser.role === UserRole.ADMIN && req.user.role !== UserRole.ADMIN) {
+        logger.error('Failed to update user', { error: 'Cannot update admin user!', requestId: req.id });
+        return next(new createError(403, "You do not have permission to modify an Admin user."));
     }
 
     const data = parseJSONField(req.body.data);
@@ -810,7 +816,7 @@ exports.updateUser = asyncErrorCatching(async (req, res, next) => {
     const passwordHash = data?.newPassword ? await bcrypt.hash(data.newPassword, 12) : null;
 
     await prisma.user.update({
-        where: { id: Number(id) },
+        where: { id },
         data: {
             first_name: data?.first_name ?? exUser.first_name,
             last_name: data?.last_name ?? exUser.last_name,

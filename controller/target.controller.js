@@ -53,11 +53,10 @@ exports.deleteTarget = asyncErrorCatching(async (req,res)=>{
         },
     });
 
-    res.status(200)
-        .json({
-            status: "success",
-            message: "Target deleted successfully!"
-        });
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
 });
 
 exports.getTarget = asyncErrorCatching(async(req,res)=>{

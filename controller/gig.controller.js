@@ -1,5 +1,6 @@
 const createError = require( "../utils/createError" );
 const Gig = require( "../models/gig.model" );
+const logger = require( "../utils/logger" );
 const createGig = async ( req , res , next  ) =>{
 
     if( ! req.isSeller ) return next(createError( 403 , "only sellers can create the gig" )) ;
@@ -13,7 +14,7 @@ const createGig = async ( req , res , next  ) =>{
         res.status( 201 ). json( saved  )
 
     }catch(err){
-        console.log( "createGig()" , err );
+        logger.error({ event: "createGig", outcome: "Failed", error: err.message });
         next(err);
     }
     
@@ -24,9 +25,12 @@ const deleteGig = async( req , res , next  ) =>{
         const gig = await Gig.findById( gigId )
         if ( gig.user.toString() !== req.userId.toString() ) return next( createError( 403 , "Not authorised to delete this gig " ) )
         await Gig.findByIdAndDelete( req.params.id );
-        res.status( 200 ).send(gigId)
+        res.status(204).json({
+            status: "success",
+            data: null
+        });
     } catch (error) {
-        console.log( "deleteGig()" , error );
+        logger.error({ event: "deleteGig", outcome: "Failed", error: error.message });
         next( error );
     }
 
@@ -39,7 +43,7 @@ const getGig = async( req , res , next  ) =>{
         res.status( 200  ).send( gig )
     }
     catch( err ){
-        console.log( "getGig()" , err );
+        logger.error({ event: "getGig", outcome: "Failed", error: err.message });
         next( err );
     }
 
@@ -83,7 +87,7 @@ const getGigs = async( req , res , next  ) =>{
         res.status ( 200 ).send( gigs );
 
     } catch (error) {
-        console.log( "gigGigs()" , error )
+        logger.error({ event: "getGigs", outcome: "Failed", error: error.message });
         next( error );
     }
 

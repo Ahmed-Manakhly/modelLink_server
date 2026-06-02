@@ -2,11 +2,10 @@ const router = require("express").Router();
 const authController = require("../controller/auth.controller");
 
 router.use(authController.protect);
-router.use(authController.restrictTo('ADMIN'));
-
 
 router.post(
     '/admins',
+    authController.restrictTo('ADMIN'),
     authController.uploadUserFiles,
     authController.createAdmin,
     authController.createUserHandler
@@ -14,12 +13,13 @@ router.post(
 
 router.post(
     '/employees',
+    authController.restrictTo('ADMIN'),
     authController.uploadUserFiles,
     authController.createEmployee,
     authController.createUserHandler
 );
 // --------------------------------------------------
-router.use(authController.restrictTo('ADMIN', 'EMPLOYEE'))
+router.use(authController.restrictTo('ADMIN', 'EMPLOYEE'));
 
 router.get('/', authController.getAllUsers);
 router.get('/:id', authController.getUserById);

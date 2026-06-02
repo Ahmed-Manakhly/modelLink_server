@@ -34,7 +34,7 @@ exports.createNotification = asyncErrorCatching(async (req, res,next) => {
 });
 //----------------------------------------------------------------------------------
 exports.getAllNotificationByUser = asyncErrorCatching(async (req, res) => {
-    const userId = +req.params.id
+    const userId = req.params.id
     const notifications = await prisma.Notification.findMany({
         orderBy: {
             createdAt : 'desc'
@@ -67,10 +67,9 @@ exports.deleteNotification = asyncErrorCatching(async (req, res) => {
         },
     });
 
-    res.status(200)
-        .json({
+        res.status(204).json({
             status: "success",
-            message: "notification deleted successfully!"
+            data: null
         });
 });
 //-----------------------------------------------------------------------------------

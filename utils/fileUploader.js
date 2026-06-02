@@ -59,7 +59,8 @@ exports.uploadingFiles = (folder, fields) => asyncErrorCatching(async (req, res,
                 'audio/mp3',
                 'audio/wav',
                 'audio/mpeg',
-                'application/x-shockwave-flash'
+                'application/x-shockwave-flash',
+                'application/octet-stream'
             ];
 
             if (allowedTypes.includes(file.mimetype)) {

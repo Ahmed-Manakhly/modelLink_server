@@ -2,11 +2,11 @@ const createError = require("../utils/createError");
 const asyncErrorCatching = require("../utils/asyncErrorCatching");
 const errorMessages = require("../utils/errorMessages");
 const prisma = require("../prisma/prisma");
-const Stripe = require( "stripe" ) ;
+const Stripe = require("stripe");
 const APIFeatures = require("../utils/apiFeature");
 const logger = require("../utils/logger");
 
-exports.getAllOrders = asyncErrorCatching( async ( req , res , next ) => {
+exports.getAllOrders = asyncErrorCatching(async (req, res, next) => {
     const operation = new APIFeatures(req.query)
         .filter()
         .sort()
@@ -50,15 +50,15 @@ exports.getAllOrders = asyncErrorCatching( async ( req , res , next ) => {
     });
 });
 //========================== by manakhly
-exports.getOrdersByModel = asyncErrorCatching( async ( req , res , next ) => {
+exports.getOrdersByModel = asyncErrorCatching(async (req, res, next) => {
     const modelId = +req.params.id
 
     const orders = await prisma.order.findMany({
         orderBy: {
-            updatedAt : 'desc'
+            updatedAt: 'desc'
         },
         where: {
-            aiModelId : modelId,
+            aiModelId: modelId,
         },
 
     });
@@ -81,16 +81,16 @@ exports.getOrdersByModel = asyncErrorCatching( async ( req , res , next ) => {
     });
 });
 //--------------------------------------------
-exports.getOrdersByDev = asyncErrorCatching( async ( req , res , next ) => {
+exports.getOrdersByDev = asyncErrorCatching(async (req, res, next) => {
 
-    const devId = +req.params.id
+    const devId = req.params.id
 
     const orders = await prisma.order.findMany({
         orderBy: {
-            updatedAt : 'desc'
+            updatedAt: 'desc'
         },
         where: {
-            developerId : devId,
+            developerId: devId,
         },
 
     });
@@ -113,16 +113,16 @@ exports.getOrdersByDev = asyncErrorCatching( async ( req , res , next ) => {
     });
 });
 //--------------------------------------------
-exports.getOrdersByClient = asyncErrorCatching( async ( req , res , next ) => {
+exports.getOrdersByClient = asyncErrorCatching(async (req, res, next) => {
 
-    const clientId = +req.params.id
+    const clientId = req.params.id
 
     const orders = await prisma.order.findMany({
         orderBy: {
-            updatedAt : 'desc'
+            updatedAt: 'desc'
         },
         where: {
-            clientId : clientId,
+            clientId: clientId,
         },
 
     });
@@ -151,11 +151,11 @@ exports.getOrder = asyncErrorCatching(async (req, res, next) => {
 
     if (req.user.role === "CLIENT") {
         userOrdersOption = {
-            clientId:  +req.user.id,
+            clientId: req.user.id,
         }
     } else if (req.user.role === "DEVELOPER") {
         userOrdersOption = {
-            developerId: +req.user.id,
+            developerId: req.user.id,
         }
     }
 
@@ -167,27 +167,27 @@ exports.getOrder = asyncErrorCatching(async (req, res, next) => {
     });
 
     if (!order) {
-        return next( new createError(404, errorMessages.ORDER_NOT_FOUND));
+        return next(new createError(404, errorMessages.ORDER_NOT_FOUND));
     }
-    const {clientId} = order //========================== by manakhly
+    const { clientId } = order //========================== by manakhly
     const clientData = await prisma.user.findUnique({
         where: {
-            id: parseInt(clientId)
+            id: clientId
         }
     });
-    const {developerId} = order
+    const { developerId } = order
     const developerData = await prisma.user.findUnique({
         where: {
-            id: parseInt(developerId)
+            id: developerId
         }
     });
-    const {aiModelId} = order
+    const { aiModelId } = order
     const aiModelData = await prisma.AiModel.findUnique({
         where: {
             id: parseInt(aiModelId)
         }
     });
-    order = {...order , clientData , developerData ,aiModelData}
+    order = { ...order, clientData, developerData, aiModelData }
 
     logger.info({
         userCustomId: req.user.customId,
@@ -359,7 +359,8 @@ exports.deleteOrder = asyncErrorCatching(async (req, res, next) => {
         order: order.id
     }, "User successfully deleted order");
 
-    res.status(204).send({
+    res.status(204).json({
         status: "success",
+        data: null
     });
 });

@@ -21,6 +21,20 @@ const safeUserFields = {
         updatedAt: true
 };
 
+const publicUserFields = {
+        id: true,
+        customId: true,
+        first_name: true,
+        last_name: true,
+        org_username: true,
+        org_name: true,
+        country: true,
+        org_desc: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+};
+
 const allowableFields = [
         'id',
         'customId',
@@ -72,3 +86,4 @@ exports.generateOptions = () => ({
         searchFields,
 });
 exports.safeUserFields = safeUserFields;
+exports.publicUserFields = publicUserFields;

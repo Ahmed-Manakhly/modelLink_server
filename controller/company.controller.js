@@ -72,10 +72,9 @@ exports.deleteCompany = asyncErrorCatching(async(req,res,next)=>{
                 },
             });
 
-        res.status(200)
-        .json({
+        res.status(204).json({
             status: "success",
-            message: "Company deleted successfully!"
+            data: null
         });
 
 });
