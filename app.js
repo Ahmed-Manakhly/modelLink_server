@@ -85,8 +85,13 @@ if (process.env.NODE_ENV === "production") {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-//EDIT-MANAKHLY
-app.use(express.static('public'))
+
+// app.use(express.static('public'))
+if (process.env.PUBLIC_DIR) {
+    app.use('/public', express.static(process.env.PUBLIC_DIR));
+} else {
+    logger.warn('PUBLIC_DIR environment variable not set');
+}
 
 // development logging
 if (process.env.NODE_ENV === 'development') {

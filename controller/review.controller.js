@@ -61,13 +61,25 @@ exports.getReviewByOrder = asyncErrorCatching(async (req, res, next) => { // by 
             orderId,
         },
     });
+    if (!review) {
+        return res.status(200).send({
+            status: "success",
+            data: {
+                review: null
+            },
+        });
+    }
     const userData = await prisma.user.findUnique({
         where: {
             id :review.clientId,
         },
     });
-    const {avatar,org_username, first_name ,role , createdAt, country , id} = userData
-    review.userData =  {avatar,org_username, first_name ,role , createdAt, country , id}
+    if (userData) {
+        const {avatar,org_username, first_name ,role , createdAt, country , id} = userData;
+        review.userData =  {avatar,org_username, first_name ,role , createdAt, country , id};
+    } else {
+        review.userData = null;
+    }
     res.status(200).send({
         status: "success",
         data: {

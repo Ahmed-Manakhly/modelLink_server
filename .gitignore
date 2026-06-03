@@ -8,3 +8,4 @@ prisma/migrations/
 .vercel
 public/
 scripts/
+logs/

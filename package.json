@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon --ignore logs/ server.js",
     "test": "mocha --timeout 20000"
   },
   "keywords": [],
