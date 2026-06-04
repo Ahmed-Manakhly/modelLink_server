@@ -31,27 +31,13 @@ echo "📦 AI Models"
 warm "aiModels_all"           "$BASE_URL/aiModel"
 
 # ─────────────────────────────────────────────
-# 2. Companies / Orgs
+# 3. Global Configurations
 # ─────────────────────────────────────────────
 echo ""
-echo "🏢 Companies"
-warm "company_all"            "$BASE_URL/company"
-
-# ─────────────────────────────────────────────
-# 3. Gigs
-# ─────────────────────────────────────────────
-echo ""
-echo "🔗 Gigs / Services"
-warm "gigs_all"               "$BASE_URL/gigs"
-
-# ─────────────────────────────────────────────
-# 4. Global Configurations
-# ─────────────────────────────────────────────
-echo ""
-echo "📄 System Modules & Targets"
-warm "modules_all"            "$BASE_URL/module"
-warm "targets_all"            "$BASE_URL/target"
-warm "rules_all"              "$BASE_URL/rule"
+echo "🔐 Admin Authentication (Pending Implementation)"
+# TODO: Add admin auth curl request here once endpoint is finalized
+# e.g., ADMIN_TOKEN=$(curl -s -X POST $BASE_URL/auth/login -d '{"email":"admin@mod.com","password":"..."}' | jq -r .token)
+# Note: Legacy DICOM configuration endpoints (module, target, rule) have been deprecated.
 
 # ─────────────────────────────────────────────
 # Summary

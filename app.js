@@ -18,15 +18,10 @@ const {
     usersAdminRoute,
     // ----------------
     converstioinRoute,
-    gigRoute,
     messageRoute,
     orderRoute,
     reviewRoute,
-    companyRoute,
     aiModelRoute,
-    moduleRoute,
-    targetRoute,
-    ruleRoute,
     notificationRoute
 
 } = require("./routes");
@@ -34,16 +29,8 @@ const {
 const app = express();
 
 const allowedOrigins = [
-    'https://66dedc51c84f8d239a9adb2f--melodious-starlight-977ab6.netlify.app',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'http://192.168.1.103:3001',
-    "http://localhost:5173",
-    "http://localhost:5175",
-    "http://localhost:5174",
-    "http://127.0.0.1:5173",
-    'https://aiex.netlify.app',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
 ];
 
 app.use(
@@ -121,16 +108,11 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/admin/users", usersAdminRoute);
 // --------------------------
-app.use("/api/gigs", gigRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/conversations", converstioinRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/reviews", reviewRoute);
-app.use("/api/company", companyRoute);
 app.use("/api/aiModel", aiModelRoute);
-app.use("/api/module", moduleRoute);
-app.use("/api/target", targetRoute);
-app.use("/api/rule", ruleRoute);
 app.use("/api/notification", notificationRoute);
 
 
