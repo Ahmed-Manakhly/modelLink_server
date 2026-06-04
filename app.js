@@ -112,8 +112,10 @@ app.get("/", (req, res) => {
     res.send("server is running...");
 });
 
-
-
+// Health check route for deploy and cache-warm scripts
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "success", message: "Server is healthy" });
+});
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);

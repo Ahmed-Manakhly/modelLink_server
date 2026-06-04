@@ -1,0 +1,9 @@
+{
+  "ignore": [
+    "logs/*",
+    "public/*",
+    "node_modules/*",
+    "prisma/*.db",
+    "uploads/*"
+  ]
+}

@@ -3,9 +3,22 @@ package-lock.json
 prisma/migrations/
 # Keep environment variables out of version control
 .env
+# Ignore system files
 .DS_Store
+# Ignore build output
+dist
+# Ignore IDE settings
+.vscode
 .idea
-.vercel
-public/
-scripts/
+# Ignore test coverage reports
+coverage
+# Ignore uploaded files
+uploads
+# Ignore public assets
+public
+# Ignore runtime logs
 logs/
+
+.vercel
+# scripts/
+seeding_scripts/

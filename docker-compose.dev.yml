@@ -1,4 +1,5 @@
 services:
+  # ----------------------------------------------------------
   db:
     container_name: modellink_postgres
     image: postgres:17-bookworm
@@ -21,13 +22,129 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
+  # ----------------------------------------------------------
+  pgadmin:
+    container_name: modellink_pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5333:80"
+    security_opt:
+      - apparmor=docker-restrict-pgadmin
+    depends_on:
+      - db
+    networks:
+      - db
+    restart: unless-stopped
+  # ----------------------------------------------------------
+  certbot-init:
+    image: certbot/certbot
+    container_name: modellink_certbot-init
+    volumes:
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
+    entrypoint: ""
+    command: >
+      sh -c ' if [ ! -d "/etc/letsencrypt/live/api.millensys.com" ]; then
+        echo "Creating self-signed certificate for initial setup...";
+        mkdir -p /etc/letsencrypt/live/api.millensys.com;
+        openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+          -keyout /etc/letsencrypt/live/api.millensys.com/privkey.pem \
+          -out /etc/letsencrypt/live/api.millensys.com/fullchain.pem \
+          -subj "/CN=api.millensys.com";
+        echo "Self-signed certificate created. Replace with real cert using certbot.";
+      else
+        echo "Certificate already exists.";
+      fi '
+    networks:
+      - db
+  # ----------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: modellink_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    security_opt:
+      - apparmor=docker-restrict-nginx
+    depends_on:
+      certbot-init:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/main.conf:ro
+      # Use a bind mount for local dev to access existing images
+      - ./public:/var/www/html/public:ro
+      # (For VM Production: uncomment the line below and comment the one above) 
+      # TO : Mount the same app-volume the backend uses so nginx can serve /public directly
+      # - app-volume:/var/www/html/public:ro
+      # Webroot for ACME http-01 challenges
+      - webroot:/var/www/certbot:ro
+      # TLS certs produced by certbot
+      - certs:/etc/letsencrypt:ro
+    networks:
+      - db
+      - modelink-network
+    restart: unless-stopped
+  # ----------------------------------------------------------
+  backend:
+    container_name: modellink_backend
+    build: .
+    # We DO NOT set 'user: modelLink' here. The container MUST start as root
+    # so entrypoint.sh can successfully chown volumes and use su-exec.
+    command: npm start
+    # -----------------------------------------------------------
+    env_file:
+      - .env
+    environment:
+      # Database
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@modellink_postgres:5432/${POSTGRES_DB}"
+      NODE_ENV: docker_development
+      PUBLIC_DIR: /public
+      LOG_DIR: /logs
+      NODE_OPTIONS: "--dns-result-order=ipv4first"
+    volumes:
+      # Use a bind mount for local dev to access existing images
+      - ./public:/public
+      # (For VM Production: uncomment the line below and comment the one above)
+      # TO : Use a named Docker volume for portability and persistence
+      # - app-volume:/public
+      # Use a bind mount for logs as well so you can read them locally
+      - ./logs:/logs
+      # (For VM Production: uncomment the line below and comment the one above)
+      # - logs-volume:/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - db
+      - modelink-network
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+  # ----------------------------------------------------------
+  certbot:
+    image: certbot/certbot
+    container_name: modellink_certbot
+    depends_on:
+      - nginx
+    volumes:
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/certbot
+    entrypoint: ""
+    command: >
+      sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --deploy-hook 'nginx -s reload' || true; done"
+    restart: unless-stopped
+# ----------------------------------------------------------
 networks:
   db:
     driver: bridge
   modelink-network:
     external: true
-
+# ----------------------------------------------------------
 volumes:
   db:
   app-volume:

@@ -21,16 +21,15 @@ process.on('uncaughtException', err => {
 // Docker manages /public via named volume and PUBLIC_DIR env
 // For local development, the below will auto-create publicDir:
 
-if (process.env.NODE_ENV !== 'production') {
-  const projectRoot = __dirname;
-  const parentDir = path.dirname(projectRoot);
-  const publicDir = path.join(parentDir, 'public');
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true });
-    logger.info(`✅ Created public directory: ${publicDir}`);
-  }
-  process.env.PUBLIC_DIR = publicDir;
-}
+// if (!process.env.PUBLIC_DIR) {
+//   const projectRoot = __dirname;
+//   const publicDir = path.join(projectRoot, 'public');
+//   if (!fs.existsSync(publicDir)) {
+//     fs.mkdirSync(publicDir, { recursive: true });
+//     logger.info(`✅ Created public directory: ${publicDir}`);
+//   }
+//   process.env.PUBLIC_DIR = publicDir;
+// }
 // Validate environment variables
 validateEnvVars();
 
