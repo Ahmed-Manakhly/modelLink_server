@@ -20,7 +20,7 @@ exports.createAiModel = asyncErrorCatching(async(req,res,next)=>{
         deliveryTime,desc,price,subscription,payPerClick,revisionNumber,sales,starFrequency,
         totalStars,userId,feature,imageUrl} = data;
 
-    if(!title||!category||!indications||!modality||!bodyPart||!fda||!fdaUrl||!desc||!price||!userId){
+    if(!title || !category || !indications || !modality || !bodyPart || fda === undefined || fda === null || !fdaUrl || !desc || price === undefined || price === null || !userId){
         logger.error('Failed to create AI Model', { error: 'Missing required data', requestId: req.id });
         return next(new createError(400, "not completed data"));
     }
