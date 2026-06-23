@@ -1,10 +1,11 @@
 const router = require( "express" ).Router();
-const { getMessages, createMessage } = require("../controller/message.controller");
-const { verifyToken } = require( "../middleware/jwt" );
+const { getMessages, createMessage, uploadMessageAttachment, markMessagesAsRead } = require("../controller/message.controller");
+const authController = require("../controller/auth.controller");
 
-// router.get( "/:id" , verifyToken , getMessages   )
-// router.post( "/" , verifyToken , createMessage   )
+router.use(authController.protect);
+
 router.get( "/:id"  , getMessages   )
-router.post( "/"  , createMessage   )
+router.post( "/"  , uploadMessageAttachment, createMessage   )
+router.patch( "/read/:conversationId", markMessagesAsRead )
 
 module.exports = router;

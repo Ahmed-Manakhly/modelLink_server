@@ -2,6 +2,9 @@
 const router = require("express").Router();
 const authController = require('../controller/auth.controller');
 
+router.get('/developers/public', authController.getPublicDevelopers);
+router.get('/:id/public', authController.getUserPublicProfilePublic);
+
 // Logged-in user profile
 router.use(authController.protect);
 

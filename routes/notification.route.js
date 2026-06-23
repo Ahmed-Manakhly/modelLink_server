@@ -1,12 +1,12 @@
-// const authController = require("../controller/auth.controller");
+const authController = require("../controller/auth.controller");
 const router = require( "express" ).Router()
-const { createNotification,getAllNotificationByUser,deleteNotification,updateNotification } = require( "../controller/notification.controller" );
+const { createNotification,getAllNotificationByUser,deleteNotification,updateNotification, readAllNotifications } = require( "../controller/notification.controller" );
 
-// by manakhly
-router.route("/").post(createNotification)
-router.route("/:id").get(getAllNotificationByUser)
-router.route("/:id").delete(deleteNotification)
-router.route("/:id").patch(updateNotification)
-
+router.route("/read-all").patch(authController.protect, readAllNotifications);
+router.route("/").post(authController.protect, authController.restrictTo('CLIENT', 'DEVELOPER', 'ADMIN'), createNotification);
+router.route("/:id")
+    .get(authController.protect, getAllNotificationByUser)
+    .delete(authController.protect, deleteNotification)
+    .patch(authController.protect, updateNotification);
 
 module.exports = router;

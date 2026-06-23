@@ -7,16 +7,25 @@ const logger = require('../utils/logger');
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const sendEmail = require('../utils/email');
+const { buildOtpEmailHtml } = require('../utils/emailTemplates');
 const bcrypt = require('bcrypt');
 const { uploadingFiles } = require('../utils/fileUploader');
 const { getFiles, parseJSONField } = require('../utils/helpers');
 const { generateOptions, safeUserFields, publicUserFields } = require('../utils/ApiFeaturesHelpersForUsers');
 const ApiFeatures = require('../utils/ApiFeatures');
+const { normalizeFilterQuery, FILTER_SPECS, parseMultiValueFilter } = require('../utils/normalizeFilterQuery');
 const errorMessages = require("../utils/errorMessages");
 const createCustomIds = require("../utils/createCustomIds");
 
 const STAFF_ROLES = [UserRole.ADMIN, UserRole.EMPLOYEE];
 const MARKETPLACE_ROLES = [UserRole.CLIENT, UserRole.DEVELOPER];
+
+const getAuthCookieOptions = (expires) => ({
+    expires,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+});
 
 //============================================================================ helpers
 const signToken = (payload, secret, expiresIn) => jwt.sign(payload, secret, { expiresIn });
@@ -29,7 +38,18 @@ const createSendToken = (user, statusCode, res) => {
         accessTokenExpiresIn
     );
 
-    const safeUser = { ...user, password: undefined };
+    // Set JWT token in cookie
+    const cookieOptions = getAuthCookieOptions(
+        new Date(Date.now() + parseInt(process.env.ACCESS_TOKEN_EXPIRATION, 10))
+    );
+    res.cookie('jwt', token, cookieOptions);
+
+    const safeUser = {};
+    Object.keys(safeUserFields).forEach(key => {
+        if (user[key] !== undefined) {
+            safeUser[key] = user[key];
+        }
+    });
 
     logger.info('Token sent successfully', {
         userCustomId: user.customId,
@@ -62,6 +82,8 @@ exports.protect = asyncErrorCatching(async (req, res, next) => {
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
+    } else if (req.query.token) {
+        token = req.query.token;
     }
 
     if (!token || token === 'null' || token === 'undefined') {
@@ -76,12 +98,35 @@ exports.protect = asyncErrorCatching(async (req, res, next) => {
             return next(new createError(401, errorMessages.USER_BELONGS_TO_TOKEN_NOT_FOUND));
         }
 
+        if (user.deletedAt) {
+            return next(new createError(401, errorMessages.USER_DELETED));
+        }
+
+        if (user.lockup) {
+            const lockoutPeriod = 15 * 60 * 1000; // 15 minutes
+            if (Date.now() - new Date(user.lockup).getTime() <= lockoutPeriod) {
+                return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
+            } else if (!user.isActive) {
+                // If the lockout period has expired but user is still inactive due to lockup, un-lock them
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { isActive: true, failed_attempts: 0, lockup: null }
+                });
+                user.isActive = true;
+                user.lockup = null;
+                user.failed_attempts = 0;
+            }
+        }
+
         if (!user.isActive) {
             return next(new createError(401, errorMessages.USER_INACTIVE));
         }
 
-        if (user.password_change && decoded.iat < Math.floor(new Date(user.password_change).getTime() / 1000)) {
-            return next(new createError(401, errorMessages.PASSWORD_CHANGED_RELOGIN));
+        if (user.password_change) {
+            const passwordChangedSeconds = Math.floor(new Date(user.password_change).getTime() / 1000);
+            if (decoded.iat < passwordChangedSeconds) {
+                return next(new createError(401, errorMessages.PASSWORD_CHANGED_RELOGIN));
+            }
         }
 
         if (isPasswordExpired(user)) {
@@ -90,10 +135,6 @@ exports.protect = asyncErrorCatching(async (req, res, next) => {
 
         if (user.role !== decoded.role) {
             return next(new createError(401, errorMessages.ROLE_CHANGED_RELOGIN));
-        }
-
-        if (decoded.exp < Math.floor(Date.now() / 1000)) {
-            return next(new createError(401, errorMessages.SESSION_EXPIRED));
         }
 
         req.user = user;
@@ -173,12 +214,22 @@ exports.register = asyncErrorCatching(async (req, res, next) => {
     const { email, org_username, org_name, password, passwordConfirm, role } = req.body;
     const normalizedRole = role?.toUpperCase();
 
-    if (normalizedRole === UserRole.ADMIN || normalizedRole === UserRole.EMPLOYEE) {
+    if (normalizedRole === 'ADMIN') {
+        return next(new createError(400, errorMessages.ADMIN_ROLE_NOT_ALLOWED));
+    }
+    if (normalizedRole === 'EMPLOYEE') {
         return next(new createError(400, errorMessages.INTERNAL_ROLE_NOT_ALLOWED));
     }
 
     if (!password || !org_username || !email || !passwordConfirm) {
         return next(new createError(400, errorMessages.EMAIL_USERNAME_PASSWORD_REQUIRED));
+    }
+
+    const normalizedUsername = org_username.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!isValidEmail(normalizedEmail)) {
+        return next(new createError(400, errorMessages.INVALID_EMAIL_FORMAT));
     }
 
     if (password !== passwordConfirm) {
@@ -187,7 +238,10 @@ exports.register = asyncErrorCatching(async (req, res, next) => {
 
     const existingUser = await prisma.user.findFirst({
         where: {
-            OR: [{ org_username }, { email }, { org_name }],
+            OR: [
+                { org_username: normalizedUsername },
+                { email: normalizedEmail }
+            ],
         },
     });
 
@@ -210,85 +264,110 @@ exports.register = asyncErrorCatching(async (req, res, next) => {
         org_phone,
         org_desc,
         logoURl,
-        org_aet,
-        org_ipAddress,
-        rule_id,
-        target_id,
-        module_id,
     } = req.body;
 
-    const hashedPassword = bcrypt.hashSync(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const customId = createCustomIds(assignedRole);
     const avatar = getFiles(req.files, 'avatar')?.[0] || logoURl || null;
 
-    const newUser = await prisma.user.create({
-        data: {
-            customId,
-            org_username,
-            email: email.toLowerCase(),
-            password: hashedPassword,
-            first_name: first_name || '',
-            last_name: last_name || '',
-            country: country || '',
-            org_phone: org_phone || 'N/A',
-            org_name: org_name || org_username,
-            org_desc: org_desc || '',
-            role: assignedRole,
-            avatar,
-            org_aet,
-            org_ipAddress,
-            rule_id: rule_id !== undefined && rule_id !== null ? Number(rule_id) : 0,
-            target_id: target_id !== undefined && target_id !== null ? Number(target_id) : 0,
-            module_id: module_id !== undefined && module_id !== null ? Number(module_id) : 0,
-        },
-    });
+    const createData = {
+        customId,
+        org_username: normalizedUsername,
+        email: normalizedEmail,
+        password: hashedPassword,
+        first_name: first_name || '',
+        last_name: last_name || '',
+        country: country || '',
+        org_phone: org_phone || 'N/A',
+        org_name: org_name || org_username,
+        org_desc: org_desc || '',
+        role: assignedRole,
+        avatar,
+    };
 
-    logger.info('User registered successfully', {
-        userCustomId: newUser.customId,
-        username: newUser.org_username,
-        role: newUser.role,
-    });
+    if (assignedRole === 'DEVELOPER') {
+        createData.wallet = { create: { availableBalance: 0, pendingBalance: 0, totalEarnings: 0 } };
+    }
 
-    createSendToken(newUser, 201, res);
+    try {
+        const newUser = await prisma.user.create({
+            data: createData,
+        });
+
+        logger.info('User registered successfully', {
+            userCustomId: newUser.customId,
+            username: newUser.org_username,
+            role: newUser.role,
+        });
+
+        createSendToken(newUser, 201, res);
+    } catch (err) {
+        if (err.code === 'P2002') {
+            return next(new createError(400, errorMessages.USER_ALREADY_EXISTS));
+        }
+        return next(err);
+    }
 });
 
 exports.login = asyncErrorCatching(async (req, res, next) => {
-    const email = req.body.email?.trim().toLowerCase();
+    const emailOrUsername = (req.body.email || req.body.org_username)?.trim().toLowerCase();
     const password = req.body.password;
 
-    if (!email || !password) {
-        return next(new createError(400, "email and password are required !"));
+    if (!emailOrUsername || !password) {
+        return next(new createError(400, "email/username and password are required !"));
     }
 
-    const user = await prisma.user.findUnique({
-        where: { email },
+    const user = await prisma.user.findFirst({
+        where: {
+            OR: [
+                { email: emailOrUsername },
+                { org_username: emailOrUsername }
+            ]
+        },
     });
 
-    if (!user) {
+    if (!user || user.deletedAt) {
         return next(new createError(401, errorMessages.INVALID_CREDENTIALS));
     }
 
-    if (!user.isActive) {
-        return next(new createError(401, errorMessages.ACCOUNT_IS_LOCKED));
+    const lockoutPeriod = 15 * 60 * 1000; // 15 minutes
+    if (user.lockup && (Date.now() - new Date(user.lockup).getTime() > lockoutPeriod)) {
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                isActive: true,
+                failed_attempts: 0,
+                lockup: null
+            }
+        });
+        user.isActive = true;
+        user.failed_attempts = 0;
+        user.lockup = null;
     }
 
-    if (!bcrypt.compareSync(password, user.password)) {
-        if (user.failed_attempts >= 10) {
-            return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
-        }
+    if (!user.isActive) {
+        return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
+    }
 
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
         const failedAttempts = user.failed_attempts + 1;
         const updateData = { failed_attempts: failedAttempts };
 
-        if (failedAttempts === 10) {
+        if (failedAttempts >= 10) {
             updateData.isActive = false;
             updateData.lockup = new Date();
         }
 
         await prisma.user.update({
-            where: { email },
+            where: { id: user.id },
             data: updateData,
         });
+
+        if (failedAttempts >= 10) {
+            return next(new createError(401, errorMessages.ACCOUNT_LOCKED));
+        }
 
         return next(new createError(401, errorMessages.INVALID_CREDENTIALS));
     }
@@ -298,8 +377,8 @@ exports.login = asyncErrorCatching(async (req, res, next) => {
     }
 
     await prisma.user.update({
-        where: { email },
-        data: { failed_attempts: 0 },
+        where: { id: user.id },
+        data: { failed_attempts: 0, lastLogin: new Date() },
     });
 
     logger.info('User logged in successfully', {
@@ -351,10 +430,9 @@ exports.createEmailToken = asyncErrorCatching(async (req, res, next) => {
     try {
         await sendEmail({
             email: normalizedEmail,
-            subject: 'Verify Your Email',
-            emailTemplate: `<h1>Welcome to ModelLink world!</h1>
-            <p>Your OTP is <b>${otp}</b></p>
-            <p>This code expires in <b>${otpMinutes} minutes</b>.</p>`,
+            subject: 'Verify Your Email — ModelLink',
+            emailTemplate: buildOtpEmailHtml({ otp, expiresMinutes: otpMinutes }),
+            message: `Your ModelLink verification code is ${otp}. It expires in ${otpMinutes} minutes.`,
         });
         logger.info('Email token creation successful', { email: normalizedEmail });
         res.status(201).json({
@@ -403,11 +481,6 @@ exports.resetPassword = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(404, errorMessages.USER_NOT_FOUND_RETRY));
     }
 
-    if (!user.isActive) {
-        logger.error('Password reset failed', { error: 'Account is locked!' });
-        return next(new createError(400, errorMessages.ACCOUNT_IS_LOCKED));
-    }
-
     if (password !== passwordConfirm) {
         logger.error('Password reset failed', { error: 'Passwords do not match!' });
         return next(new createError(400, errorMessages.PASSWORDS_DO_NOT_MATCH));
@@ -424,6 +497,9 @@ exports.resetPassword = asyncErrorCatching(async (req, res, next) => {
         data: {
             password: passwordHash,
             password_change: new Date(),
+            failed_attempts: 0,
+            lockup: null,
+            isActive: true,
         },
     });
 
@@ -506,7 +582,8 @@ exports.changePassword = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.ACCOUNT_IS_LOCKED));
     }
 
-    if (!bcrypt.compareSync(currentPassword, user.password)) {
+    const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordCorrect) {
         logger.error('changePassword failed', { error: 'Invalid credentials!' });
         return next(new createError(401, errorMessages.INVALID_CREDENTIALS));
     }
@@ -516,10 +593,11 @@ exports.changePassword = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.INVALID_PASSWORD));
     }
 
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     await prisma.user.update({
         where: { id: req.user.id },
         data: {
-            password: bcrypt.hashSync(newPassword, 12),
+            password: hashedPassword,
             password_change: new Date(Date.now())
         },
     });
@@ -557,23 +635,14 @@ exports.updateMe = asyncErrorCatching(async (req, res, next) => {
         org_phone: data?.org_phone ?? req.user.org_phone,
         country: data?.country ?? req.user.country,
         org_desc: data?.org_desc ?? req.user.org_desc,
-        org_aet: data?.org_aet ?? req.user.org_aet,
-        org_ipAddress: data?.org_ipAddress ?? req.user.org_ipAddress,
+        logoUrl: data?.logoUrl ?? req.user.logoUrl,
         avatar: avatar ?? req.user.avatar,
         updatedAt: new Date(),
     };
 
-    if (data?.rule_id !== undefined) updatedData.rule_id = Number(data.rule_id);
-    if (data?.target_id !== undefined) updatedData.target_id = Number(data.target_id);
-    if (data?.module_id !== undefined) updatedData.module_id = Number(data.module_id);
-
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
         where: { id },
         data: updatedData,
-    });
-
-    const updatedUser = await prisma.user.findUnique({
-        where: { id },
         select: safeUserFields,
     });
 
@@ -581,6 +650,70 @@ exports.updateMe = asyncErrorCatching(async (req, res, next) => {
         status: 'success',
         message: 'Your profile has been updated successfully!',
         data: { updatedUser },
+    });
+});
+
+const loadPublicUserProfile = async (id, viewerId = null) => {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+            ...publicUserFields,
+            verification: {
+                select: { status: true, verifiedAt: true },
+            },
+        },
+    });
+
+    if (!user) {
+        return null;
+    }
+
+    if (STAFF_ROLES.includes(user.role) && user.id !== viewerId) {
+        throw new createError(403, "Marketplace staff profiles are private.");
+    }
+
+    return user;
+};
+
+// Guest-accessible public profile (no auth)
+exports.getUserPublicProfilePublic = asyncErrorCatching(async (req, res, next) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return next(new createError(400, errorMessages.USER_ID_REQUIRED));
+    }
+
+    try {
+        const user = await loadPublicUserProfile(id, null);
+
+        if (!user) {
+            return next(new createError(404, errorMessages.USER_NOT_FOUND));
+        }
+
+        res.status(200).json({ status: 'success', data: { user } });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// Guest-accessible list of public developers
+exports.getPublicDevelopers = asyncErrorCatching(async (req, res, next) => {
+    // Only allow fetching developers
+    const filterQuery = normalizeFilterQuery(req.query, FILTER_SPECS.user);
+    filterQuery.role = 'DEVELOPER';
+    filterQuery.isActive = 'true';
+
+    const queryBuilder = new ApiFeatures(prisma.user, filterQuery, generateOptions(), null, publicUserFields);
+    const { data: users, pagination, error } = await queryBuilder.execute();
+
+    if (error) {
+        return next(new createError(400, error));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        pagination,
+        data: { users },
     });
 });
 
@@ -592,20 +725,17 @@ exports.getUserPublicProfile = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.USER_ID_REQUIRED));
     }
 
-    const user = await prisma.user.findUnique({
-        where: { id },
-        select: publicUserFields,
-    });
+    try {
+        const user = await loadPublicUserProfile(id, req.user.id);
 
-    if (!user) {
-        return next(new createError(404, errorMessages.USER_NOT_FOUND));
+        if (!user) {
+            return next(new createError(404, errorMessages.USER_NOT_FOUND));
+        }
+
+        res.status(200).json({ status: 'success', data: { user } });
+    } catch (err) {
+        next(err);
     }
-
-    if (STAFF_ROLES.includes(user.role)) {
-        return next(new createError(403, "Marketplace staff profiles are private."));
-    }
-
-    res.status(200).json({ status: 'success', data: { user } });
 });
 
 //============================================================================ admin handlers
@@ -631,9 +761,6 @@ exports.createUserHandler = asyncErrorCatching(async (req, res, next) => {
         org_desc,
         country,
         role: requestedRole,
-        rule_id,
-        target_id,
-        module_id,
     } = body;
 
     const role = forcedRole || requestedRole;
@@ -642,14 +769,16 @@ exports.createUserHandler = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.EMAIL_USERNAME_PASSWORD_REQUIRED));
     }
 
+    const normalizedUsername = org_username.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
+
     if (password !== passwordConfirm) {
         return next(new createError(400, errorMessages.PASSWORDS_DO_NOT_MATCH));
     }
 
-    const normalizedEmail = email.toLowerCase();
     const existingUser = await prisma.user.findFirst({
         where: {
-            OR: [{ email: normalizedEmail }, { org_username }],
+            OR: [{ email: normalizedEmail }, { org_username: normalizedUsername }],
         },
         select: { id: true, email: true, org_username: true },
     });
@@ -678,43 +807,74 @@ exports.createUserHandler = asyncErrorCatching(async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 12);
     const customId = createCustomIds(role);
 
-    const user = await prisma.user.create({
-        data: {
-            customId,
-            org_username,
-            email: normalizedEmail,
-            password: passwordHash,
-            first_name: first_name || '',
-            last_name: last_name || '',
-            org_phone: org_phone || 'N/A',
-            org_name: org_name || org_username,
-            org_desc: org_desc || '',
-            country: country || '',
-            role,
-            avatar,
-            rule_id: rule_id !== undefined && rule_id !== null ? Number(rule_id) : 0,
-            target_id: target_id !== undefined && target_id !== null ? Number(target_id) : 0,
-            module_id: module_id !== undefined && module_id !== null ? Number(module_id) : 0,
-        },
-    });
+    const createData = {
+        customId,
+        org_username: normalizedUsername,
+        email: normalizedEmail,
+        password: passwordHash,
+        first_name: first_name || '',
+        last_name: last_name || '',
+        org_phone: org_phone || 'N/A',
+        org_name: org_name || org_username,
+        org_desc: org_desc || '',
+        country: country || '',
+        role,
+        avatar,
+    };
 
-    logger.info('Staff user created successfully', {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-    });
-
-    if (sendToken) {
-        createSendToken(user, 201, res);
-        return;
+    if (role === 'DEVELOPER') {
+        createData.wallet = { create: { availableBalance: 0, pendingBalance: 0, totalEarnings: 0 } };
     }
 
-    res.status(201).json({ status: 'success', message: 'User created successfully!' });
+    try {
+        const user = await prisma.user.create({
+            data: createData,
+        });
+
+        if (req.user && req.user.id) {
+            await prisma.auditLog.create({
+                data: {
+                    actionType: 'CREATE_USER',
+                    targetId: user.id,
+                    reason: `Admin created user with role ${user.role}`,
+                    adminId: req.user.id
+                }
+            });
+        }
+
+        logger.info('Staff user created successfully', {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+        });
+
+        if (sendToken) {
+            createSendToken(user, 201, res);
+            return;
+        }
+
+        res.status(201).json({ status: 'success', message: 'User created successfully!' });
+    } catch (err) {
+        if (err.code === 'P2002') {
+            return next(new createError(400, errorMessages.USER_ALREADY_EXISTS));
+        }
+        return next(err);
+    }
 });
 
 exports.getAllUsers = asyncErrorCatching(async (req, res, next) => {
 
-    const queryBuilder = new ApiFeatures(prisma.user, req.query, generateOptions(), null, safeUserFields);
+    const adminUserSelect = {
+        ...safeUserFields,
+        wallet: { select: { availableBalance: true } },
+    };
+
+    const filterQuery = normalizeFilterQuery(req.query, FILTER_SPECS.user);
+    parseMultiValueFilter(filterQuery, 'isActive', 'boolean');
+    parseMultiValueFilter(filterQuery, 'isVerified', 'boolean');
+    parseMultiValueFilter(filterQuery, 'role', 'enum');
+
+    const queryBuilder = new ApiFeatures(prisma.user, filterQuery, generateOptions(), null, adminUserSelect);
     const { data: users, pagination, error } = await queryBuilder.execute();
 
     if (error) {
@@ -784,6 +944,29 @@ exports.updateUser = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.CANNOT_UPDATE_EMAIL));
     }
 
+    if (req.user.id === id && data?.role) {
+        return next(new createError(400, "You cannot modify your own role."));
+    }
+
+    let normalizedUsername = undefined;
+    if (data?.org_username !== undefined) {
+        normalizedUsername = data.org_username?.trim().toLowerCase();
+
+        if (!normalizedUsername || !/^[a-zA-Z0-9_-]+$/.test(normalizedUsername)) {
+            return next(new createError(400, "Username must be alphanumeric and cannot contain spaces or special characters except _ and -"));
+        }
+
+        const duplicateUsername = await prisma.user.findFirst({
+            where: {
+                org_username: normalizedUsername,
+                id: { not: id }
+            }
+        });
+        if (duplicateUsername) {
+            return next(new createError(400, "Username is already taken by another user"));
+        }
+    }
+
     if (data?.password) {
         logger.error('Failed to update user', { error: 'Cannot update password fields!', requestId: req.id });
         return next(new createError(400, errorMessages.CANNOT_UPDATE_PASSWORD_FIELDS));
@@ -793,7 +976,7 @@ exports.updateUser = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, errorMessages.CANNOT_ASSIGN_STAFF_ROLE));
     }
 
-    if (data?.role && MARKETPLACE_ROLES.includes(exUser.role)) {
+    if (data?.role && MARKETPLACE_ROLES.includes(exUser.role) && req.user.role !== UserRole.ADMIN) {
         return next(new createError(400, errorMessages.CANNOT_UPDATE_USER_ROLE));
     }
 
@@ -814,26 +997,119 @@ exports.updateUser = asyncErrorCatching(async (req, res, next) => {
     }
 
     const passwordHash = data?.newPassword ? await bcrypt.hash(data.newPassword, 12) : null;
+    const targetRole = data?.role && req.user.role === UserRole.ADMIN ? data.role : exUser.role;
 
-    await prisma.user.update({
+    if (targetRole === 'DEVELOPER' && exUser.role !== 'DEVELOPER') {
+        const wallet = await prisma.wallet.findUnique({ where: { userId: id } });
+        if (!wallet) {
+            await prisma.wallet.create({
+                data: {
+                    userId: id,
+                    availableBalance: 0,
+                    pendingBalance: 0,
+                    totalEarnings: 0
+                }
+            });
+        }
+
+    }
+
+    if (req.user && req.user.id) {
+        await prisma.auditLog.create({
+            data: {
+                actionType: 'UPDATE_USER',
+                targetId: id,
+                reason: `Admin updated user. Modified fields: ${Object.keys(data || {}).join(', ')}`,
+                adminId: req.user.id
+            }
+        });
+    }
+
+    const updatedUser = await prisma.user.update({
         where: { id },
         data: {
             first_name: data?.first_name ?? exUser.first_name,
             last_name: data?.last_name ?? exUser.last_name,
             org_name: data?.org_name ?? exUser.org_name,
-            org_username: data?.org_username ?? exUser.org_username,
+            org_username: normalizedUsername ?? exUser.org_username,
             org_phone: data?.org_phone ?? exUser.org_phone,
             country: data?.country ?? exUser.country,
             org_desc: data?.org_desc ?? exUser.org_desc,
-            org_aet: data?.org_aet ?? exUser.org_aet,
-            org_ipAddress: data?.org_ipAddress ?? exUser.org_ipAddress,
             avatar: avatar ?? exUser.avatar,
             isActive: data?.isActive !== undefined ? data.isActive : exUser.isActive,
             password: passwordHash ?? exUser.password,
             password_change: passwordHash ? new Date() : exUser.password_change,
-            role: data?.role && req.user.role === UserRole.ADMIN ? data.role : exUser.role,
+            role: targetRole,
         },
+        select: safeUserFields
     });
 
-    sendSuccessMessage(res, 200, 'User has been updated successfully!');
+    res.status(200).json({
+        status: 'success',
+        message: 'User has been updated successfully!',
+        data: { updatedUser }
+    });
+});
+
+exports.deleteUser = asyncErrorCatching(async (req, res, next) => {
+    const { id } = req.params;
+
+    if (!id) {
+        logger.error('Failed to delete user', { error: 'User ID is required!', requestId: req.id });
+        return next(new createError(400, errorMessages.USER_ID_REQUIRED));
+    }
+
+    const exUser = await prisma.user.findUnique({ where: { id } });
+    if (!exUser) {
+        logger.error('Failed to delete user', { error: 'User not found!', requestId: req.id });
+        return next(new createError(404, errorMessages.USER_NOT_FOUND));
+    }
+
+    if (exUser.role === UserRole.ADMIN) {
+        logger.error('Failed to delete user', { error: 'Cannot delete admin user!', requestId: req.id });
+        return next(new createError(403, "You do not have permission to delete an Admin user."));
+    }
+
+    // Soft delete the user by setting deletedAt and isActive = false
+    await prisma.user.update({
+        where: { id },
+        data: {
+            deletedAt: new Date(),
+            isActive: false
+        }
+    });
+
+    // Hide all conversations where the deleted user was a participant
+    await prisma.conversationParticipant.updateMany({
+        where: { userId: id },
+        data: { isHidden: true }
+    });
+
+    if (req.user && req.user.id) {
+        await prisma.auditLog.create({
+            data: {
+                actionType: 'DELETE_USER',
+                targetId: id,
+                reason: `Admin soft-deleted user`,
+                adminId: req.user.id
+            }
+        });
+    }
+
+    logger.info('User soft-deleted successfully', {
+        userId: id,
+        adminId: req.user.id,
+        event: 'deleteUser',
+        outcome: 'Success'
+    });
+
+    res.status(200).json({
+        status: 'success',
+        message: 'User has been soft-deleted successfully!'
+    });
+});
+
+exports.logout = asyncErrorCatching(async (req, res, next) => {
+    res.cookie('jwt', 'loggedout', getAuthCookieOptions(new Date(Date.now() + 10 * 1000)));
+    res.status(200).json({ status: 'success' });
 });

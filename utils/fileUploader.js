@@ -8,7 +8,7 @@ const asyncErrorCatching = require('./asyncErrorCatching');
 const publicDir = process.env.PUBLIC_DIR;
 // ===============================================
 // Middleware generator with dynamic fields
-exports.uploadingFiles = (folder, fields) => asyncErrorCatching(async (req, res, next) => {
+exports.uploadingFiles = (folder, fields = []) => asyncErrorCatching(async (req, res, next) => {
     // Validate folder name
     if (!folder || typeof folder !== 'string') {
         return next(new createError(400, 'Invalid upload folder specified'));
@@ -39,6 +39,7 @@ exports.uploadingFiles = (folder, fields) => asyncErrorCatching(async (req, res,
                 'image/webp',
                 'image/tiff',
                 'image/bmp',
+                'image/svg+xml',
                 'application/pdf',
                 'application/msword',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -76,6 +77,7 @@ exports.uploadingFiles = (folder, fields) => asyncErrorCatching(async (req, res,
                 let message = 'File upload failed';
                 if (err.code === 'LIMIT_UNEXPECTED_FILE') message = 'Unexpected file field';
                 if (err.code === 'LIMIT_FILE_SIZE') message = 'File too large';
+                if (err.code === 'LIMIT_FILE_COUNT') message = 'Too many files';
                 if (err.code === 'ENOENT') message = 'Directory creation failed';
                 return reject(new createError(400, `${message}: ${err.message}`));
             }

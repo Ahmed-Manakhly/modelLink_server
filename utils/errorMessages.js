@@ -7,7 +7,7 @@ const errorMessages = {
     USERNAME_AND_PASSWORD_REQUIRED: "username and password are required !",
     PASSWORDS_DO_NOT_MATCH: "Passwords do not match !",
     PASSWORD_EXPIRED: "Your password has expired, Please update your password !",
-    INVALID_PASSWORD: process.env.PASSWORD_COMPLEXITY,
+    INVALID_PASSWORD: process.env.PASSWORD_COMPLEXITY || "password must be at least 12 characters long and contain at least one uppercase letter, one lowercase letter, one digit and one special character !",
     INVALID_CREDENTIALS: "Incorrect email or password !",
     CURRENT_PASSWORD_AND_NEW_PASSWORD_REQUIRED: "Current password and new password are required !",
 
@@ -48,6 +48,7 @@ const errorMessages = {
     SESSION_EXPIRED: "Session expired. Please log in again !",
     AUTHENTICATION_FAILED: "Authentication failed !",
     USER_INACTIVE: "User is inactive. Please contact support !",
+    USER_DELETED: "This account has been deleted !",
     PASSWORD_CHANGED_RELOGIN: "Password changed recently. Please log in again !",
     ROLE_CHANGED_RELOGIN: "User role changed. Please log in again !",
     SOMETHING_WENT_WRONG: "Something went wrong. Please try again later !",

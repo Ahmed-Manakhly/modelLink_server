@@ -1,13 +1,16 @@
+require('dotenv').config();
 const superTest = require("supertest");
 const expect = require("chai").expect;
 const errorMessages = require("../utils/errorMessages");
 const reviewRequest = superTest("http://localhost:8000/api/reviews/");
-
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken');
 
 describe("Reviews", () => {
 
-    let clientToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInJvbGUiOiJDTElFTlQiLCJpYXQiOjE3MDM5MDQ2MzEsImV4cCI6MTcxMTY4MDYzMX0.wfOZVBHh2wClIkC_CbhWIIYlC88jTdUI4hI8NukHvKA";
-    let developerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsInJvbGUiOiJERVZFTE9QRVIiLCJpYXQiOjE3MDM4MTI3OTgsImV4cCI6MTcxMTU4ODc5OH0.mEuQAlr1nxcz3LMDMNI3RmRmTykEOF-2MuA4BhJQbzI";
+    let clientToken;
+    let developerToken;
 
     let reviewData = {
         "aiModelId": 4,
@@ -17,6 +20,95 @@ describe("Reviews", () => {
     }
     let id;
 
+    before(async () => {
+        // 1. Ensure Client (id: "12") and Developer (id: "13") users exist in DB
+        const hashedPassword = await require('bcrypt').hash("Password123!", 10);
+
+        await prisma.user.upsert({
+            where: { id: "12" },
+            update: { isActive: true },
+            create: {
+                id: "12",
+                customId: "USR-00000000000012",
+                email: "client12@modellink.com",
+                org_username: "client12",
+                password: hashedPassword,
+                role: "CLIENT",
+                isActive: true
+            }
+        });
+
+        await prisma.user.upsert({
+            where: { id: "13" },
+            update: { isActive: true },
+            create: {
+                id: "13",
+                customId: "USR-00000000000013",
+                email: "dev13@modellink.com",
+                org_username: "dev13",
+                password: hashedPassword,
+                role: "DEVELOPER",
+                isActive: true
+            }
+        });
+
+        // 2. Ensure AiModel (id: 4) exists
+        await prisma.aiModel.upsert({
+            where: { id: 4 },
+            update: {},
+            create: {
+                id: 4,
+                title: "Test AI Model",
+                category: "Diagnostics",
+                desc: "Test Description",
+                developerId: "13"
+            }
+        });
+
+        // 3. Ensure AiModelVersion (id: 1) exists
+        await prisma.aiModelVersion.upsert({
+            where: { id: 1 },
+            update: {},
+            create: {
+                id: 1,
+                version: "1.0.0",
+                price: 1000,
+                aiModelId: 4
+            }
+        });
+
+        // 4. Ensure Order (id: 6) exists
+        await prisma.order.upsert({
+            where: { id: 6 },
+            update: {},
+            create: {
+                id: 6,
+                clientId: "12",
+                developerId: "13",
+                aiModelId: 4,
+                versionId: 1,
+                purchasePrice: 1000,
+                stripePaymentIntentId: "pi_test_review_order_6",
+                title: "Test AI Model Order",
+                img: "default.png",
+                status: "DELIVERED"
+            }
+        });
+
+        // 5. Clean up any existing review for orderId 6 so that createReview passes
+        await prisma.review.deleteMany({
+            where: { orderId: 6 }
+        });
+
+        // 6. Sign fresh JWT tokens that will not expire
+        const secret = process.env.ACCESS_SECRET_STR || 'AD7-FGH-HUKYUK111ddd-2545-aSDA@ER-UKY11125UKddd-2545-aSDA@ER';
+        clientToken = jwt.sign({ id: "12", role: "CLIENT" }, secret, { expiresIn: '1d' });
+        developerToken = jwt.sign({ id: "13", role: "DEVELOPER" }, secret, { expiresIn: '1d' });
+    });
+
+    after(async () => {
+        await prisma.$disconnect();
+    });
 
     describe("POST", () => {
 
@@ -34,6 +126,43 @@ describe("Reviews", () => {
                         expect(response.body.data).to.have.property("review");
                         id = response.body.data.review.id;
                     })
+            });
+
+            it('/ should fail to create duplicate review for same aiModelId and clientId', async () => {
+                // Seed a second order for the same client and model
+                await prisma.order.upsert({
+                    where: { id: 7 },
+                    update: {},
+                    create: {
+                        id: 7,
+                        clientId: "12",
+                        developerId: "13",
+                        aiModelId: 4,
+                        versionId: 1,
+                        purchasePrice: 1000,
+                        stripePaymentIntentId: "pi_test_review_order_7",
+                        title: "Test AI Model Order 2",
+                        img: "default.png",
+                        status: "DELIVERED"
+                    }
+                });
+
+                const res = await reviewRequest
+                    .post("/")
+                    .set("Authorization", `Bearer ${clientToken}`)
+                    .send({
+                        "aiModelId": 4,
+                        "orderId": 7,
+                        "desc": "another review attempt",
+                        "star": 5
+                    });
+
+                expect(res.statusCode).to.equal(403);
+                expect(res.body.status).to.equal("fail");
+                expect(res.body.message).to.equal(errorMessages.ONLY_ONE_REVIEW_PER_MODEL);
+
+                // Clean up order 7
+                await prisma.order.deleteMany({ where: { id: 7 } });
             });
         })
 

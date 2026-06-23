@@ -24,5 +24,6 @@ router.use(authController.restrictTo('ADMIN', 'EMPLOYEE'));
 router.get('/', authController.getAllUsers);
 router.get('/:id', authController.getUserById);
 router.patch('/:id', authController.uploadUserFiles, authController.updateUser);
+router.delete('/:id', authController.deleteUser);
 
 module.exports = router;

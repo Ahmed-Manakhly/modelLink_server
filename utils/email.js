@@ -1,5 +1,13 @@
 const nodemailer = require('nodemailer');
 const logger = require('./logger');
+const { isMarketplaceDemo } = require('./marketplaceDemo');
+
+const shouldSkipEmailSend = () =>
+    process.env.EMAIL_SEND_DISABLED === 'true'
+    || isMarketplaceDemo()
+    || process.env.NODE_ENV === 'test'
+    || !process.env.SMTP_EMAIL
+    || !process.env.SMTP_PASSWORD;
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -16,14 +24,23 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async (options) => {
+    if (shouldSkipEmailSend()) {
+        logger.info(`Email skipped (demo/no SMTP): to=${options.email} subject="${options.subject}"`);
+        return;
+    }
+
     try {
         const mailOptions = {
             from: `"ModelLink Platform" <${process.env.SMTP_EMAIL}>`,
             to: options.email,
             subject: options.subject,
             html: options.emailTemplate,
-            text: options.message
+            text: options.message,
         };
+
+        if (options.replyTo) {
+            mailOptions.replyTo = options.replyTo;
+        }
 
         await transporter.sendMail(mailOptions);
         logger.info(`Email sent successfully to ${options.email}`);

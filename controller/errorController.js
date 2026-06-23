@@ -44,9 +44,10 @@ const sendErrorDev = (err, req, res) => {
             message: err.message
         });
     } else {
-        return res.status(err.statusCode).render('website/404', {
-            title: errorMessages.SOMETHING_WENT_WRONG,
-            msg: err.message
+        return res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            stack: err.stack
         });
     }
 };
@@ -68,9 +69,9 @@ const sendErrorProd = (err, req, res) => {
             });
         }
     } else {
-        return res.status(err.statusCode).render('website/404', {
-            title: errorMessages.SOMETHING_WENT_WRONG,
-            msg: err.message
+        return res.status(err.statusCode).json({
+            status: 'error',
+            message: err.message
         });
     }
 };
@@ -98,6 +99,7 @@ module.exports = (err, req, res, next) => {
         error = handlePrismaError(err);
     }
     if (err instanceof require('@prisma/client').Prisma.PrismaClientValidationError) {
+        console.error("PRISMA VALIDATION ERROR:", err.message);
         error = new CreateError(400, "Invalid data provided. Please check your input values.");
     }
     if (err instanceof require('@prisma/client').Prisma.PrismaClientInitializationError) {

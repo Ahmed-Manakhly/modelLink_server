@@ -57,6 +57,10 @@ const consoleStream = pretty({
 const logger = pino(
     {
         level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+        redact: {
+            paths: ['req.headers.authorization', 'token', 'accessToken', 'password', 'newPassword', 'passwordConfirm', 'emailToken'],
+            censor: '[REDACTED]'
+        }
     },
     pino.multistream([
         { stream: consoleStream },

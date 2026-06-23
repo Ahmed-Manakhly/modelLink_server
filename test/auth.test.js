@@ -8,7 +8,7 @@ const authRequest = superTest("http://localhost:8000/api/auth/");
  */
 describe("Authentication", () => {
 
-    let randomNum = Math.floor(Math.random() * 99);
+    let randomNum = Math.floor(Math.random() * 9999);
     let userData = {
         "email": `ibrahim${randomNum}@neureveal.com`,
         "org_username": `1brahim${randomNum}`,
@@ -167,6 +167,29 @@ describe("Authentication", () => {
                     })
             });
 
+            it("/me - Authenticated", async () => {
+                return authRequest
+                    .get("me")
+                    .set("Authorization", `Bearer ${token}`)
+                    .then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.body).to.have.property("data");
+                        expect(response.body.data).to.have.property("user");
+                        expect(response.body.data.user).to.deep.include(userData);
+                    })
+            });
+
+            it("/logout - Authenticated", async () => {
+                return authRequest
+                    .post("logout")
+                    .set("Authorization", `Bearer ${token}`)
+                    .then((response) => {
+                        expect(response.statusCode).to.equal(200);
+                        expect(response.body).to.have.property("status");
+                        expect(response.body.status).to.equal("success");
+                    })
+            });
+
         });
 
         describe("Negative Testing", () => {
@@ -215,20 +238,6 @@ describe("Authentication", () => {
 
     describe("Me", () => {
 
-        describe("Positive Testing", () => {
-            it("/me", async () => {
-                return authRequest
-                    .get("me")
-                    .set("Authorization", `Bearer ${token}`)
-                    .then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.body).to.have.property("data");
-                        expect(response.body.data).to.have.property("user");
-                        expect(response.body.data.user).to.deep.include(userData);
-                    })
-            });
-        });
-
         describe("Negative Testing", () => {
             it("/me - Not Authorized", async () => {
                 return authRequest
@@ -242,19 +251,6 @@ describe("Authentication", () => {
             });
         });
 
-    });
-
-    describe("Logout", () => {
-        it("/logout", async () => {
-            return authRequest
-                .post("logout")
-                .set("Authorization", `Bearer ${token}`)
-                .then((response) => {
-                    expect(response.statusCode).to.equal(200);
-                    expect(response.body).to.have.property("status");
-                    expect(response.body.status).to.equal("success");
-                })
-        });
     });
 
 });
