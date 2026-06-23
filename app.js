@@ -10,51 +10,44 @@ const createError = require("./utils/createError");
 const globalErrorHandler = require("./controller/errorController");
 const uuid = require("uuid");
 const logger = require("./utils/logger");
-
+const { getAllowedOrigins, createCorsOriginChecker } = require("./utils/corsOrigins");
 
 const {
     authRoute,
     usersRoute,
     usersAdminRoute,
-    // ----------------
     converstioinRoute,
     messageRoute,
     orderRoute,
     reviewRoute,
     aiModelRoute,
-    notificationRoute
-
+    notificationRoute,
+    developerVerificationRoute,
+    walletRoute,
+    payoutRoute,
+    disputeRoute,
+    adminRoute,
+    taxonomyRoute,
+    stripeRoute,
+    supportRoute
 } = require("./routes");
 
 const app = express();
-
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-];
+const allowedOrigins = getAllowedOrigins();
 
 app.use(
     cors({
-        origin: function (origin, callback) {
-            // allow requests with no origin
-            // (like mobile apps or curl requests)
-            if (!origin) return callback(null, true);
-            if (allowedOrigins.indexOf(origin) === -1) {
-                var msg =
-                    "The CORS policy for this site does not " +
-                    "allow access from the specified Origin.";
-                return callback(new Error(msg), false);
-            }
-            return callback(null, true);
-
-        },
+        origin: createCorsOriginChecker(allowedOrigins),
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization'],
     })
 );
 
 // set security HTTP headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: false,
+}));
 
 
 
@@ -69,7 +62,14 @@ if (process.env.NODE_ENV === "production") {
     app.use("/api", limiter);
 }
 
-app.use(express.json());
+app.use(express.json({
+    limit: '10kb',
+    verify: (req, res, buf) => {
+        if (req.originalUrl && req.originalUrl.includes('stripe-webhook')) {
+            req.rawBody = buf;
+        }
+    }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -85,8 +85,8 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kb' }));
+// body parser is configured above
+
 
 app.use(xss());
 // Attach a unique request ID to every request for logging and tracing
@@ -114,11 +114,19 @@ app.use("/api/messages", messageRoute);
 app.use("/api/reviews", reviewRoute);
 app.use("/api/aiModel", aiModelRoute);
 app.use("/api/notification", notificationRoute);
+app.use("/api/verifications", developerVerificationRoute);
+app.use("/api/wallets", walletRoute);
+app.use("/api/payouts", payoutRoute);
+app.use("/api/disputes", disputeRoute);
+app.use("/api/admin", adminRoute);
+app.use("/api/taxonomy", taxonomyRoute);
+app.use("/api/stripe", stripeRoute);
+app.use("/api/support", supportRoute);
 
 
 app.all("*", (req, res, next) => {
-    console.log('NO ROUTE SELECTED')
-    res.send('NO ROUTE SELECTED')
+    logger.warn(`Route not found: ${req.originalUrl}`);
+    next(new createError(404, `Can't find ${req.originalUrl} on this server!`));
 });
 
 app.use(globalErrorHandler);

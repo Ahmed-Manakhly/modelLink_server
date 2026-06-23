@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
@@ -8,143 +8,480 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model AiModel {
-  id             Int              @id @default(autoincrement())
-  title          String
-  category       String
-  indications    String
-  modality       String
-  bodyPart       String
-  fda            Boolean          @default(true)
-  fdaUrl         String           @unique
-  endpointUrl    String?          @unique
-  cover          String?
-  deliveryTime   Int?
-  desc           String
-  price          Int
-  subscription   Boolean          @default(false)
-  payPerClick    Boolean          @default(false)
-  revisionNumber Int?
-  sales          Int
-  starFrequency  Int?
-  totalStars     Int
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  userId         String
-  User           User             @relation(fields: [userId], references: [id],onDelete: Cascade)
-  AiModelFeature AiModelFeature[]
-  AiModelImage   AiModelImage[]
-  AiModelMetrics AiModelMetrics[]
-  Order          Order[]
-  Review         Review[]
+// ==========================================
+// ENUMS
+// ==========================================
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+  DEVELOPER
+  CLIENT
+}
 
-  @@index([userId])
+enum ModelStatus {
+  DRAFT
+  PUBLISHED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum AssetType {
+  API_ENDPOINT
+  DOCKER_IMAGE
+  DOWNLOAD_LINK
+  LICENSE_KEY
+  HUGGINGFACE_URL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  DELIVERED
+  DISPUTED
+  REFUNDED
+  CANCELLED
+}
+
+enum WalletTransactionType {
+  SALE
+  PAYOUT
+  REFUND
+  PLATFORM_FEE
+  ADJUSTMENT
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+enum MessageStatus {
+  SENT
+  READ
+}
+
+enum NotificationType {
+  ORDER
+  REVIEW
+  MODEL
+  SYSTEM
+  MESSAGE
+}
+
+// ==========================================
+// 1. IDENTITY & GOVERNANCE
+// ==========================================
+model User {
+  id               String    @id @default(cuid())
+  customId         String    @unique
+  isActive         Boolean   @default(true)
+  role             UserRole
+  first_name       String?
+  last_name        String?
+  email            String    @unique
+  org_phone        String?
+  org_username     String?   @unique
+  password         String
+  country          String?
+  avatar           String?
+  lastLogin        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  oauthProvider    String?
+  oauthId          String?
+  failed_attempts  Int       @default(0)
+  lockup           DateTime?
+  password_change  DateTime? @default(now())
+
+  stripeCustomerId String? @unique
+  stripeAccountId  String? @unique
+  stripeChargesEnabled   Boolean   @default(false)
+  stripeDetailsSubmitted Boolean   @default(false)
+  isVerified             Boolean   @default(false)
+
+  org_name         String?
+  org_desc         String?
+  logoUrl          String?
+
+  total_orders     Int      @default(0)
+
+  // Relations
+  AiModel                                     AiModel[]
+
+  conversationParticipants                    ConversationParticipant[]
+  Message                                     Message[]
+
+  Order_Order_clientIdToUser                  Order[]        @relation("Order_clientIdToUser")
+  Order_Order_developerIdToUser               Order[]        @relation("Order_developerIdToUser")
+  Review                                      Review[]
+  AuditLog                                    AuditLog[]     @relation("AdminAuditActions")
+
+  wallet                                      Wallet?
+  verification                                DeveloperVerification?
+  payouts                                     DeveloperPayout[]
+  openedDisputes                              Dispute[]      @relation("OpenedDisputes")
+
+  notificationsReceived                       Notification[] @relation("NotificationRecipient")
+  notificationsSent                           Notification[] @relation("NotificationSender")
+
+  @@index([email])
+}
+
+model EmailToken {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  emailToken String    @unique
+  isVerified Boolean?  @default(false)
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+}
+
+model DeveloperVerification {
+  id               Int                @id @default(autoincrement())
+  status           VerificationStatus @default(PENDING)
+  documentUrl      String?
+  notes            String?
+  rejectionReason  String?
+  verifiedAt       DateTime?
+  createdAt        DateTime           @default(now())
+  userId           String             @unique
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  actionType String
+  targetId   String
+  reason     String
+  createdAt  DateTime @default(now())
+
+  adminId    String
+  Admin      User     @relation("AdminAuditActions", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+}
+
+model SystemSettings {
+  id               Int      @id @default(1)
+  platformFeeValue Int      @default(20)
+  updatedAt        DateTime @updatedAt
+}
+
+// ==========================================
+// 2. PRODUCT CATALOG (MARKETPLACE)
+// ==========================================
+model AiModel {
+  id            Int         @id @default(autoincrement())
+  title         String
+  category      String
+  desc          String
+  status        ModelStatus @default(DRAFT)
+  deletedAt     DateTime?
+
+  galleryImages String[]
+  tags          String[]
+  views         Int @default(0)
+  sales         Int @default(0)
+  totalStars    Int @default(0)
+  starFrequency Int @default(0)
+  reviewCount   Int @default(0)
+  avgRating     Float @default(0)
+  featured      Boolean @default(false)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  developerId   String
+  developer     User   @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  versions      AiModelVersion[]
+  orders        Order[]
+  reviews       Review[]
+
+  categoryId    Int?
+  categoryRel   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([developerId, status])
+  @@index([title])
+  @@index([category])
+  @@index([categoryId])
+}
+
+model AiModelVersion {
+  id          Int       @id @default(autoincrement())
+  version     String
+  isActive    Boolean   @default(true)
+  isPrimary   Boolean   @default(false)
+  price       Int
+
+  modality    String?
+  bodyPart    String?
+  indications String?
+
+  deliveryTime Int       @default(3)
+  fda         Boolean @default(false)
+  fdaUrl      String?   @unique
+
+  createdAt   DateTime @default(now())
+
+  aiModelId   Int
+  aiModel     AiModel @relation(fields: [aiModelId], references: [id], onDelete: Cascade)
+
+  features    AiModelFeature[]
+  metrics     AiModelMetric[]
+  assets      ModelAsset[]
+  orders      Order[]
+  reviews     Review[]
+
+  modalityId  Int?
+  modalityRel Modality? @relation(fields: [modalityId], references: [id], onDelete: SetNull)
+  bodyPartId  Int?
+  bodyPartRel BodyPart? @relation(fields: [bodyPartId], references: [id], onDelete: SetNull)
+
+  @@unique([aiModelId, version])
+  @@index([aiModelId, isActive])
+  @@index([modalityId])
+  @@index([bodyPartId])
+}
+
+model ModelAsset {
+  id             Int        @id @default(autoincrement())
+  type           AssetType
+  encryptedValue String
+  createdAt      DateTime   @default(now())
+
+  versionId      Int
+  version        AiModelVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([versionId])
 }
 
 model AiModelFeature {
   id        Int     @id @default(autoincrement())
   feature   String
-  aiModelId Int
-  AiModel   AiModel @relation(fields: [aiModelId], references: [id],onDelete: Cascade)
+  versionId Int
+  version   AiModelVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
 
-  @@index([aiModelId])
+  @@index([versionId])
 }
 
-model AiModelImage {
-  id        Int     @id @default(autoincrement())
-  imageUrl  String
-  aiModelId Int
-  AiModel   AiModel @relation(fields: [aiModelId], references: [id],onDelete: Cascade)
-
-  @@index([aiModelId])
-}
-
-model AiModelMetrics {
+model AiModelMetric {
   id         Int     @id @default(autoincrement())
   metric     String
   value      Float
-  aiModelId  Int
   metricsUrl String?
-  AiModel    AiModel @relation(fields: [aiModelId], references: [id],onDelete: Cascade)
+  versionId  Int
+  version    AiModelVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([versionId])
+}
+
+// ==========================================
+// 3. TRANSACTIONAL LEDGER & ORDER MANAGEMENT
+// ==========================================
+model Order {
+  id                    Int         @id @default(autoincrement())
+  status                OrderStatus @default(PENDING)
+  purchasePrice         Int
+  stripePaymentIntentId String      @unique
+  title                 String
+  img                   String
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  clientId              String
+  developerId           String
+  aiModelId             Int
+  versionId             Int
+
+  AiModel                      AiModel        @relation(fields: [aiModelId], references: [id], onDelete: Cascade)
+  AiModelVersion               AiModelVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  User_Order_clientIdToUser    User           @relation("Order_clientIdToUser", fields: [clientId], references: [id], onDelete: Cascade)
+  User_Order_developerIdToUser User           @relation("Order_developerIdToUser", fields: [developerId], references: [id], onDelete: Cascade)
+
+  transaction                  Transaction?
+  walletTransactions           WalletTransaction[]
+  review                       Review?
+  dispute                      Dispute?
 
   @@index([aiModelId])
-}
-
-model Contact {
-  id      Int    @id @default(autoincrement())
-  message String
-  name    String
-  number  String
-  userId  String
-  User    User   @relation(fields: [userId], references: [id],onDelete: Cascade)
-
-  @@index([userId])
-}
-
-model Conversation {
-  id                                  Int       @id @default(autoincrement())
-  lastMessage                         String?
-  unReadMsg                           Int?
-  copyFor                             String?
-  readByClient                        Boolean
-  readByDeveloper                     Boolean
-  createdAt                           DateTime  @default(now())
-  updatedAt                           DateTime
-  clientId                            String
-  developerId                         String
-  User_Conversation_clientIdToUser    User      @relation("Conversation_clientIdToUser", fields: [clientId], references: [id],onDelete: Cascade)
-  User_Conversation_developerIdToUser User      @relation("Conversation_developerIdToUser", fields: [developerId], references: [id],onDelete: Cascade)
-  Message                             Message[]
-
   @@index([clientId])
   @@index([developerId])
+  @@index([developerId, status, createdAt])
+  @@index([stripePaymentIntentId])
+  @@index([status, createdAt])
+  @@index([versionId])
+}
+
+model Transaction {
+  id                    Int      @id @default(autoincrement())
+  stripeEventId         String   @unique
+  grossAmount           Int
+  platformFee           Int
+  developerPayout       Int
+  currency              String   @default("usd")
+  createdAt             DateTime @default(now())
+
+  orderId               Int      @unique
+  order                 Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model WebhookEvent {
+  id            Int                @id @default(autoincrement())
+  eventId       String             @unique
+  eventType     String
+  provider      String             @default("stripe")
+  rawPayload    Json
+  status        WebhookEventStatus @default(RECEIVED)
+  failureReason String?
+  retryCount    Int                @default(0)
+  receivedAt    DateTime           @default(now())
+  processedAt   DateTime?
+
+  @@index([eventType])
+  @@index([status])
+  @@index([provider, receivedAt])
+}
+
+model Wallet {
+  id               Int @id @default(autoincrement())
+  availableBalance Int @default(0)
+  pendingBalance   Int @default(0)
+  totalEarnings    Int @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  userId           String @unique
+  user             User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions     WalletTransaction[]
+}
+
+model WalletTransaction {
+  id            Int                   @id @default(autoincrement())
+  type          WalletTransactionType
+  amount        Int
+  description   String?
+  referenceId   String?
+  referenceType String?
+  createdAt     DateTime              @default(now())
+
+  walletId      Int
+  wallet        Wallet                @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  orderId       Int?
+  order         Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  payoutId      Int?
+  payout        DeveloperPayout?      @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+
+  @@index([walletId])
+  @@index([orderId])
+  @@index([payoutId])
+  @@index([referenceId])
+  @@index([walletId, createdAt])
+}
+
+model DeveloperPayout {
+  id               Int          @id @default(autoincrement())
+  amount           Int
+  status           PayoutStatus @default(PENDING)
+  stripeTransferId String?
+  note             String?
+  adminNote        String?
+  createdAt        DateTime     @default(now())
+
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  walletTransactions WalletTransaction[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Dispute {
+  id                  Int           @id @default(autoincrement())
+  status              DisputeStatus @default(OPEN)
+  reason              String
+  resolution          String?
+  openedById          String
+  previousOrderStatus String?
+  createdAt           DateTime      @default(now())
+
+  orderId    Int @unique
+  order      Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  openedBy   User  @relation("OpenedDisputes", fields: [openedById], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+// ==========================================
+// 4. CHAT, COMMUNICATION & REVIEW ENGINE
+// ==========================================
+model Conversation {
+  id          Int       @id @default(autoincrement())
+  pairKey     String?   @unique  // "${[idA,idB].sort().join('_')}" — null for non-DM rows
+  lastMessage String?
+  unReadMsg   Int?      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             Int      @id @default(autoincrement())
+  conversationId Int
+  userId         String
+  hasRead        Boolean  @default(false)
+  isHidden       Boolean  @default(false)
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
 }
 
 model Message {
-  id             Int          @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   desc           String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime
+  status         MessageStatus  @default(SENT)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   userId         String
   conversationId Int
-  Conversation   Conversation @relation(fields: [conversationId], references: [id],onDelete: Cascade)
-  User           User         @relation(fields: [userId], references: [id],onDelete: Cascade)
+  Conversation   Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  User           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([conversationId])
   @@index([userId])
-}
-
-model Notification {
-  id                                  Int       @id @default(autoincrement())
-  actionDesc                          String
-  unRead                              Boolean
-  createdAt                           DateTime  @default(now())
-  to                                  String
-  from                                String
-  actionLink                          String
-  @@index([to])
-}
-
-model Order {
-  id                           Int      @id @default(autoincrement())
-  aiModelId                    Int
-  img                          String
-  isCompleted                  Boolean  @default(false)
-  payment_intent               String
-  price                        Int
-  developerId                  String
-  title                        String
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
-  clientId                     String
-  AiModel                      AiModel  @relation(fields: [aiModelId], references: [id],onDelete: Cascade)
-  User_Order_clientIdToUser    User     @relation("Order_clientIdToUser", fields: [clientId], references: [id],onDelete: Cascade)
-  User_Order_developerIdToUser User     @relation("Order_developerIdToUser", fields: [developerId], references: [id],onDelete: Cascade)
-  Review                       Review?
-
-  @@index([aiModelId])
-  @@index([clientId])
-  @@index([developerId])
+  @@index([conversationId, createdAt])
 }
 
 model Review {
@@ -153,66 +490,68 @@ model Review {
   star      Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   clientId  String
   aiModelId Int
-  orderId   Int      @unique
-  AiModel   AiModel  @relation(fields: [aiModelId], references: [id],onDelete: Cascade)
-  User      User     @relation(fields: [clientId], references: [id],onDelete: Cascade)
-  Order     Order    @relation(fields: [orderId], references: [id],onDelete: Cascade)
+  orderId   Int    @unique
+  versionId Int
+
+  AiModel        AiModel        @relation(fields: [aiModelId], references: [id], onDelete: Cascade)
+  AiModelVersion AiModelVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  User           User           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([aiModelId])
   @@index([clientId])
-}
-
-enum UserRole {
-  ADMIN
-  EMPLOYEE
-  DEVELOPER
-  CLIENT
-}
-
-model User {
-  id                                          String         @id @default(cuid())
-  customId                                    String         @unique
-  isActive                                    Boolean        @default(true)
-  role                                        UserRole
-  first_name                                  String?
-  last_name                                   String?
-  email                                       String         @unique
-  org_phone                                   String?
-  org_username                                String         @unique
-  password                                    String
-  org_name                                    String?
-  org_desc                                    String?
-  country                                     String?
-  logoUrl                                     String?
-  avatar                                      String?
-  org_aet                                     String?
-  org_ipAddress                               String?
-  failed_attempts                             Int            @default(0)
-  lockup                                      DateTime?
-  password_change                             DateTime?      @default(now())
-  total_orders                                Int?
-  createdAt                                   DateTime       @default(now())
-  updatedAt                                   DateTime       @updatedAt
-  AiModel                                     AiModel[]
-  Contact                                     Contact[]
-  Conversation_Conversation_clientIdToUser    Conversation[] @relation("Conversation_clientIdToUser")
-  Conversation_Conversation_developerIdToUser Conversation[] @relation("Conversation_developerIdToUser")
-  Message                                     Message[]
-  Order_Order_clientIdToUser                  Order[]        @relation("Order_clientIdToUser")
-  Order_Order_developerIdToUser               Order[]        @relation("Order_developerIdToUser")
-  Review                                      Review[]
-
+  @@index([versionId])
+  @@unique([aiModelId, clientId])
 }
 
 
-model EmailToken {
-  id                                          Int            @id @default(autoincrement())
-  email                                       String         @unique
-  emailToken                                  String
-  isVerified                                  Boolean?       @default(false)
-  createdAt                                   DateTime       @default(now())
-  expiresAt                                   DateTime?
+model Notification {
+  id          Int      @id @default(autoincrement())
+  actionDesc  String
+  type        NotificationType @default(SYSTEM)
+  unRead      Boolean  @default(true)
+  actionLink  String?
+  createdAt   DateTime @default(now())
+  readAt      DateTime?
+
+  recipientId String
+  senderId    String?
+
+  recipient   User     @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      User?    @relation("NotificationSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+  @@index([recipientId, unRead])
 }
-
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  svg      String?   @db.Text
+
+  parentId Int?
+  parent   Category? @relation("SubCategories", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("SubCategories")
+
+  models   AiModel[]
+
+  @@index([parentId])
+}
+
+model Modality {
+  id       Int              @id @default(autoincrement())
+  name     String           @unique
+  slug     String           @unique
+  versions AiModelVersion[]
+}
+
+model BodyPart {
+  id       Int              @id @default(autoincrement())
+  name     String           @unique
+  slug     String           @unique
+  versions AiModelVersion[]
+}

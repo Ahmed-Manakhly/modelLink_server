@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon --ignore logs/ server.js",
-    "test": "mocha --timeout 20000"
+    "start": "nodemon --ignore logs/ --ignore public/ --ignore uploads/ --ignore seeding_scripts/ --ignore 'seeding_scripts/**/*.json' server.js",
+    "test": "mocha --timeout 30000 'test/**/*.test.js'"
   },
   "keywords": [],
   "author": "",
