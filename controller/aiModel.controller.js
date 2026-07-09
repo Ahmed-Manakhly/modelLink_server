@@ -382,6 +382,30 @@ exports.getAllAiModels = asyncErrorCatching(async (req, res, next) => {
         }
     });
 
+    // Ensure taxonomy and booleans are properly typed and aliased to nested versions if passed as flat keys
+    ['modalityId', 'bodyPartId'].forEach((key) => {
+        const nestedKey = `versions.${key}`;
+        if (filterQuery[key] !== undefined) {
+            // Only parse if it's a simple string or number, avoid overwriting if it's somehow an object
+            filterQuery[nestedKey] = (typeof filterQuery[key] === 'string' || typeof filterQuery[key] === 'number') 
+                ? parseInt(filterQuery[key], 10) 
+                : filterQuery[key];
+            delete filterQuery[key];
+        } else if (filterQuery[nestedKey] !== undefined) {
+            // If already nested, ensure it is cast to integer (normalizeFilterQuery returns string for integers)
+            filterQuery[nestedKey] = (typeof filterQuery[nestedKey] === 'string' || typeof filterQuery[nestedKey] === 'number') 
+                ? parseInt(filterQuery[nestedKey], 10) 
+                : filterQuery[nestedKey];
+        }
+    });
+    
+    if (filterQuery.fda !== undefined) {
+        filterQuery['versions.fda'] = filterQuery.fda === 'true' || filterQuery.fda === true;
+        delete filterQuery.fda;
+    } else if (filterQuery['versions.fda'] !== undefined) {
+        filterQuery['versions.fda'] = filterQuery['versions.fda'] === 'true' || filterQuery['versions.fda'] === true;
+    }
+
     const queryBuilder = new ApiFeatures(prisma.aiModel, filterQuery, generateModelOptions());
     if (Object.keys(presetWhere).length > 0) mergePresetWhere(queryBuilder.query, presetWhere);
     if (priceMin != null && priceMin !== '') {

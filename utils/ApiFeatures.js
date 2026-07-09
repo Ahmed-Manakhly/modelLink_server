@@ -202,7 +202,8 @@ class ApiFeatures {
                 condition = { contains: value, mode: 'insensitive' };
             }
             // Only add condition if it's valid
-            if (condition && Object.keys(condition).length > 0) {                
+            const isObject = typeof condition === 'object' && condition !== null && !(condition instanceof Date);
+            if (condition !== undefined && condition !== null && condition !== '' && (!isObject || Object.keys(condition).length > 0)) {                
                 const where = this.buildWhereObject(field, condition);
                 this.query.where.AND.push(where);
             }
