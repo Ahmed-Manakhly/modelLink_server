@@ -11,7 +11,7 @@ const allowableFields = [
     'User',
 ];
 
-const defaultSort = { updatedAt: 'asc' };
+const defaultSort = { createdAt: 'asc' };
 
 const exactMatchFields = [
     'id',
