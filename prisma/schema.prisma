@@ -461,6 +461,7 @@ model ConversationParticipant {
   userId         String
   hasRead        Boolean  @default(false)
   isHidden       Boolean  @default(false)
+  clearedAt      DateTime?
 
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)

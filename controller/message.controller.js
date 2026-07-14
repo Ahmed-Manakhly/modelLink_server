@@ -97,12 +97,15 @@ exports.createMessage = asyncErrorCatching(async (req, res, next) => {
             }
         });
 
+        const receiver = participants.find(p => p.userId !== userId);
+        const receiverWasUnread = receiver && receiver.hasRead === false;
+
         // Update conversation lastMessage & increment unReadMsg
         await tx.conversation.update({
             where: { id: conversationId },
             data: {
                 lastMessage: desc,
-                unReadMsg: { increment: 1 }
+                unReadMsg: receiverWasUnread ? { increment: 1 } : 1
             }
         });
 
@@ -118,8 +121,6 @@ exports.createMessage = asyncErrorCatching(async (req, res, next) => {
             data: { hasRead: true, isHidden: false }
         });
 
-        // Set receiver hasRead to false
-        const receiver = participants.find(p => p.userId !== userId);
         if (receiver) {
             await tx.conversationParticipant.update({
                 where: {
@@ -206,6 +207,11 @@ exports.getMessages = asyncErrorCatching(async (req, res, next) => {
     );
 
     queryBuilder.query.where.AND.push({ conversationId });
+    if (participant && participant.clearedAt) {
+        queryBuilder.query.where.AND.push({
+            createdAt: { gt: participant.clearedAt }
+        });
+    }
 
     const { data: messages, pagination, error } = await queryBuilder.execute();
 

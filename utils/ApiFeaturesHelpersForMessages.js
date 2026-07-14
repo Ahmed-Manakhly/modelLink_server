@@ -39,7 +39,7 @@ const defaultRelations = {
 exports.generateMessageOptions = () => ({
     defaultRelations,
     defaultSort,
-    defaultLimit: 100,
+    defaultLimit: 1000,
     allowableFields,
     exactMatchFields,
     fieldConfigs,

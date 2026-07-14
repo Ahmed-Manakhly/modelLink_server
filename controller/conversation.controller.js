@@ -252,7 +252,7 @@ const deleteConversation = asyncErrorCatching(async (req, res, next) => {
                 userId: req.user.id
             }
         },
-        data: { isHidden: true }
+        data: { isHidden: true, clearedAt: new Date() }
     });
 
     logger.info({
