@@ -20,12 +20,12 @@ const createCustomIds = require("../utils/createCustomIds");
 const STAFF_ROLES = [UserRole.ADMIN, UserRole.EMPLOYEE];
 const MARKETPLACE_ROLES = [UserRole.CLIENT, UserRole.DEVELOPER];
 
-const getAuthCookieOptions = (expires) => ({
-    expires,
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-});
+// const getAuthCookieOptions = (expires) => ({
+//     expires,
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === 'production',
+//     sameSite: 'lax',
+// });
 
 //============================================================================ helpers
 const signToken = (payload, secret, expiresIn) => jwt.sign(payload, secret, { expiresIn });
@@ -38,11 +38,11 @@ const createSendToken = (user, statusCode, res) => {
         accessTokenExpiresIn
     );
 
-    // Set JWT token in cookie
-    const cookieOptions = getAuthCookieOptions(
-        new Date(Date.now() + parseInt(process.env.ACCESS_TOKEN_EXPIRATION, 10))
-    );
-    res.cookie('jwt', token, cookieOptions);
+    // Set JWT token in cookie (Disabled since we use pure Bearer Token architecture)
+    // const cookieOptions = getAuthCookieOptions(
+    //     new Date(Date.now() + parseInt(process.env.ACCESS_TOKEN_EXPIRATION, 10))
+    // );
+    // res.cookie('jwt', token, cookieOptions);
 
     const safeUser = {};
     Object.keys(safeUserFields).forEach(key => {
@@ -388,6 +388,19 @@ exports.login = asyncErrorCatching(async (req, res, next) => {
     });
 
     createSendToken(user, 200, res);
+});
+
+exports.refreshToken = asyncErrorCatching(async (req, res, next) => {
+    logger.info('User token refreshed successfully', {
+        userCustomId: req.user.customId,
+        username: req.user.org_username,
+        role: req.user.role,
+        event: 'refreshToken',
+    });
+    
+    // The protect middleware already verified the current token
+    // So we just issue a brand new one to reset the 45 minute clock
+    createSendToken(req.user, 200, res);
 });
 
 exports.createEmailToken = asyncErrorCatching(async (req, res, next) => {
@@ -1109,7 +1122,6 @@ exports.deleteUser = asyncErrorCatching(async (req, res, next) => {
     });
 });
 
-exports.logout = asyncErrorCatching(async (req, res, next) => {
-    res.cookie('jwt', 'loggedout', getAuthCookieOptions(new Date(Date.now() + 10 * 1000)));
-    res.status(200).json({ status: 'success' });
-});
+// exports.logout = asyncErrorCatching(async (req, res, next) => {
+//     res.status(200).json({ status: 'success' });
+// });
