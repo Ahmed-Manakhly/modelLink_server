@@ -19,6 +19,7 @@ const allowableFields = [
     'updatedAt',
     'developerId',
     'categoryId',
+    'category',
 
     'categoryRel.id',
     'categoryRel.name',
