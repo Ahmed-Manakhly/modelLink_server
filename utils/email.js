@@ -1,10 +1,9 @@
 const nodemailer = require('nodemailer');
 const logger = require('./logger');
-const { isMarketplaceDemo } = require('./marketplaceDemo');
+// const { isMarketplaceDemo } = require('./marketplaceDemo');
 
 const shouldSkipEmailSend = () =>
     process.env.EMAIL_SEND_DISABLED === 'true'
-    || isMarketplaceDemo()
     || process.env.NODE_ENV === 'test'
     || !process.env.SMTP_EMAIL
     || !process.env.SMTP_PASSWORD;
