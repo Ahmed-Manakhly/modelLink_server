@@ -2,7 +2,7 @@ const prisma = require("../prisma/prisma");
 const createError = require("../utils/createError");
 const asyncErrorCatching = require("../utils/asyncErrorCatching");
 const ApiFeatures = require("../utils/ApiFeatures");
-const { normalizeFilterQuery, FILTER_SPECS } = require("../utils/normalizeFilterQuery");
+const { normalizeFilterQuery, FILTER_SPECS, parseCommaSeparatedFilter } = require("../utils/normalizeFilterQuery");
 const { generateAuditLogOptions } = require("../utils/ApiFeaturesHelpersForAuditLogs");
 const { generateTransactionOptions } = require("../utils/ApiFeaturesHelpersForTransactions");
 const { generateWebhookEventOptions } = require("../utils/ApiFeaturesHelpersForWebhookEvents");
@@ -11,6 +11,8 @@ const logger = require("../utils/logger");
 // Admin retrieves all audit logs
 exports.getAllAuditLogs = asyncErrorCatching(async (req, res, next) => {
     const filterQuery = normalizeFilterQuery(req.query, FILTER_SPECS.auditLog);
+    parseCommaSeparatedFilter(filterQuery, 'actionType');
+    
     const queryBuilder = new ApiFeatures(
         prisma.auditLog,
         filterQuery,
@@ -137,7 +139,22 @@ exports.getTransaction = asyncErrorCatching(async (req, res, next) => {
 });
 
 exports.getAllWebhookEvents = asyncErrorCatching(async (req, res, next) => {
-    const filterQuery = normalizeFilterQuery(req.query, FILTER_SPECS.webhookEvent);
+    // Map standard frontend createdAt filters to the WebhookEvent's receivedAt field
+    const mappedQuery = { ...req.query };
+    
+    if (mappedQuery.sort) {
+        mappedQuery.sort = mappedQuery.sort.replace('createdAt', 'receivedAt');
+    }
+    if (mappedQuery.createdAtFrom) {
+        mappedQuery.receivedAtFrom = mappedQuery.createdAtFrom;
+        delete mappedQuery.createdAtFrom;
+    }
+    if (mappedQuery.createdAtTo) {
+        mappedQuery.receivedAtTo = mappedQuery.createdAtTo;
+        delete mappedQuery.createdAtTo;
+    }
+
+    const filterQuery = normalizeFilterQuery(mappedQuery, FILTER_SPECS.webhookEvent);
     const queryBuilder = new ApiFeatures(
         prisma.webhookEvent,
         filterQuery,

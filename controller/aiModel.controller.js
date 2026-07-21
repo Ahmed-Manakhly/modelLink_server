@@ -13,7 +13,7 @@ const logger = require('../utils/logger');
 const { createAndEmitNotification } = require('../utils/createAndEmitNotification');
 const { encrypt, decrypt } = require('../utils/crypto');
 const { versionHasPaidOrders, getPaidOrderFlagsByVersionIds } = require('../utils/versionOrderLock');
-const { isMarketplaceDemo } = require('../utils/marketplaceDemo');
+
 const { runCategoryQuery, runModalityQuery, runBodyPartQuery } = require('../utils/taxonomyQuery');
 const {
     assertSubcategoryId,
@@ -133,12 +133,9 @@ exports.createAiModel = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(403, "You must be a verified developer to list AI models. Please complete the verification process."));
     }
 
-    // Stripe Connected Account onboarding verification (bypass in non-production or demo portfolio):
-    const isProduction = process.env.NODE_ENV === 'production' && !isMarketplaceDemo();
-    if (isProduction && (!developerUser.stripeAccountId || !developerUser.stripeChargesEnabled)) {
-        logger.error('Failed to create AI Model', { error: 'Stripe onboarding incomplete', developerId: req.user.id, requestId: req.id });
-        return next(new createError(400, "Stripe Connected Account onboarding is incomplete. You must link your Stripe account and enable charges before you can list AI models."));
-    }
+    // Stripe Connected Account onboarding verification has been removed.
+    // We are using Deferred Onboarding: Developers can list models and earn money immediately.
+    // They will only be required to connect Stripe when they want to withdraw their payouts.
 
     const resolvedModalityId = modalityId ? await resolveTaxonomyId('modality', modalityId) : null;
     const resolvedBodyPartId = bodyPartId ? await resolveTaxonomyId('bodyPart', bodyPartId) : null;
@@ -343,6 +340,10 @@ exports.getAllAiModels = asyncErrorCatching(async (req, res, next) => {
 
     if (filterQuery.status && typeof filterQuery.status === 'string' && filterQuery.status.includes(',')) {
         filterQuery.status = { in: filterQuery.status.split(',').map(s => s.trim()) };
+    }
+
+    if (filterQuery.id && typeof filterQuery.id === 'string' && filterQuery.id.includes(',')) {
+        filterQuery.id = { in: filterQuery.id.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n)) };
     }
 
     let presetWhere = {};

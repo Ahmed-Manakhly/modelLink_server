@@ -11,7 +11,7 @@ const logger = require("../utils/logger");
 const getPlatformFee = require("../utils/getPlatformFee");
 const { createAndEmitNotification, notifyOrderClientAndDeveloper } = require("../utils/createAndEmitNotification");
 const { orderLinkForRole } = require("../utils/notificationLinks");
-const { useMockPayments, isMockWebhookAllowed } = require("../utils/marketplaceDemo");
+const { isMockWebhookAllowed } = require("../utils/marketplaceDemo");
 
 const orderPartyContactFields = {
     id: true,
@@ -407,16 +407,15 @@ exports.createOrderIntent = asyncErrorCatching(async (req, res, next) => {
     let paymentIntent = null;
     let clientSecret = null;
 
-    // Stripe integration — real intents only in production when demo mode is off
-    if (process.env.STRIPE && !useMockPayments()) {
+    // Always try real Stripe when the key is configured.
+    // The client-side checkout page presents both Real and Demo options.
+    if (process.env.STRIPE) {
         try {
             const stripe = new Stripe(process.env.STRIPE);
             paymentIntent = await stripe.paymentIntents.create({
-                amount: version.price * 100, // Stripe expects amount in cents
+                amount: Math.round(version.price * 100), // Stripe expects cents, integer
                 currency: "usd",
-                automatic_payment_methods: {
-                    enabled: true,
-                },
+                automatic_payment_methods: { enabled: true },
                 metadata: {
                     clientId: req.user.id,
                     developerId: aiModel.developerId,
@@ -427,15 +426,10 @@ exports.createOrderIntent = asyncErrorCatching(async (req, res, next) => {
             clientSecret = paymentIntent.client_secret;
         } catch (err) {
             logger.error('Stripe payment intent creation failed', { error: err.message, requestId: req.id });
-            return next(new createError(500, "Stripe integration failure."));
+            return next(new createError(500, "Stripe integration failure. Please try again."));
         }
     } else {
-        // Mock payment intent for development testing environment
-        paymentIntent = {
-            id: `mock_pi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            client_secret: `mock_secret_${Date.now()}`
-        };
-        clientSecret = paymentIntent.client_secret;
+        return next(new createError(400, "Stripe payments are unavailable."));
     }
 
     // Create a pending Order entry linked to the version
@@ -481,9 +475,104 @@ exports.createOrderIntent = asyncErrorCatching(async (req, res, next) => {
     res.status(200).send({
         status: "success",
         clientSecret,
+        stripeEnabled: !!process.env.STRIPE,
         data: {
             order,
         },
+    });
+});
+
+// Returns a fresh clientSecret for an existing PENDING order so the checkout page can mount Stripe Elements
+exports.getPaymentClientSecret = asyncErrorCatching(async (req, res, next) => {
+    const orderId = parseInt(req.params.id, 10);
+    if (isNaN(orderId)) return next(new createError(400, "Invalid order ID."));
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return next(new createError(404, errorMessages.ORDER_NOT_FOUND));
+    if (order.clientId !== req.user.id) return next(new createError(403, "Not authorized."));
+    if (order.status !== 'PENDING') return next(new createError(400, "Order is not pending payment."));
+
+    if (!process.env.STRIPE) {
+        return res.status(200).json({ status: 'success', clientSecret: null, stripeEnabled: false });
+    }
+
+    try {
+        const stripe = new Stripe(process.env.STRIPE);
+        let paymentIntentId = order.stripePaymentIntentId;
+
+        // If the stored ID is a mock one (from a previous demo), create a fresh real PaymentIntent
+        if (!paymentIntentId || paymentIntentId.startsWith('mock_pi_')) {
+            const version = await prisma.aiModelVersion.findUnique({ where: { id: order.versionId } });
+            const pi = await stripe.paymentIntents.create({
+                amount: Math.round(order.purchasePrice * 100),
+                currency: 'usd',
+                automatic_payment_methods: { enabled: true },
+                metadata: { orderId: order.id, clientId: order.clientId, developerId: order.developerId }
+            });
+            // Update order with the real intent ID
+            await prisma.order.update({
+                where: { id: order.id },
+                data: { stripePaymentIntentId: pi.id }
+            });
+            return res.status(200).json({ status: 'success', clientSecret: pi.client_secret, stripeEnabled: true });
+        }
+
+        // Retrieve the existing real PaymentIntent to get a fresh clientSecret
+        let pi;
+        try {
+            pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+        } catch (retrieveErr) {
+            if (retrieveErr.code === 'resource_missing' || (retrieveErr.message && retrieveErr.message.includes('No such payment_intent'))) {
+                logger.warn('Payment intent not found on Stripe (likely old API key or expired), generating a new one', { orderId, oldIntent: paymentIntentId });
+                pi = await stripe.paymentIntents.create({
+                    amount: Math.round(order.purchasePrice * 100),
+                    currency: 'usd',
+                    automatic_payment_methods: { enabled: true },
+                    metadata: { orderId: order.id, clientId: order.clientId, developerId: order.developerId }
+                });
+                await prisma.order.update({
+                    where: { id: order.id },
+                    data: { stripePaymentIntentId: pi.id }
+                });
+                return res.status(200).json({ status: 'success', clientSecret: pi.client_secret, stripeEnabled: true });
+            }
+            throw retrieveErr;
+        }
+
+        if (pi.status === 'succeeded') {
+            // Self-healing: if the webhook was missed but Stripe says it's paid, we fulfill it now!
+            logger.info('Self-healing missed webhook: Payment intent is succeeded but order was pending.', { orderId });
+            const io = req.app.get('io');
+            await fulfillOrder(order.id, pi.id, null, io);
+            
+            return res.status(200).json({ status: 'success', alreadyPaid: true });
+        }
+        return res.status(200).json({ status: 'success', clientSecret: pi.client_secret, stripeEnabled: true });
+    } catch (err) {
+        logger.error('Failed to retrieve payment intent', { error: err.message, orderId });
+        return next(new createError(500, 'Could not load payment details. Please try again.'));
+    }
+});
+
+// Demo-only: instantly fulfills a PENDING order without real payment (user clicked "Demo Payment")
+exports.demoCheckout = asyncErrorCatching(async (req, res, next) => {
+    const orderId = parseInt(req.params.id, 10);
+    if (isNaN(orderId)) return next(new createError(400, "Invalid order ID."));
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return next(new createError(404, errorMessages.ORDER_NOT_FOUND));
+    if (order.clientId !== req.user.id) return next(new createError(403, "Not authorized."));
+    if (order.status !== 'PENDING') return next(new createError(400, "Order is not pending payment."));
+
+    const io = req.app.get('io');
+    const updatedOrder = await fulfillOrder(order.id, order.stripePaymentIntentId, null, io);
+
+    logger.info({ orderId, userId: req.user.id, event: 'demoCheckout' }, 'Demo payment fulfilled');
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Demo payment processed — order fulfilled.',
+        data: { order: updatedOrder }
     });
 });
 
@@ -600,18 +689,23 @@ exports.stripeWebhook = asyncErrorCatching(async (req, res, next) => {
     let event = req.body;
     let webhookEvent = null;
 
-    if (process.env.STRIPE && process.env.STRIPE_WEBHOOK_SECRET && sig) {
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || process.env.STRIPE_LOCAL_WEBHOOK_SECRET;
+
+    if (process.env.STRIPE && webhookSecret && sig) {
+        // Production path: verify real Stripe signature
         try {
             const stripe = new Stripe(process.env.STRIPE);
-            event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+            event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
         } catch (err) {
             logger.error('Webhook signature verification failed', { error: err.message });
             return res.status(400).send(`Webhook Signature Verification Error: ${err.message}`);
         }
     } else if (!isMockWebhookAllowed()) {
+        // Block un-signed webhooks in production when no STRIPE_WEBHOOK_SECRET is set
         logger.error('Stripe webhook received but env keys are missing in production environment');
-        return res.status(400).send('Webhook configuration error: STRIPE_WEBHOOK_SECRET is required.');
+        return res.status(400).send('Webhook configuration error: STRIPE_WEBHOOK_SECRET or STRIPE_LOCAL_WEBHOOK_SECRET is required.');
     }
+    // Development: allow un-signed mock webhook payloads (Stripe CLI or internal mock-pay fallback)
 
     logger.info('Stripe Webhook Event Received', { eventType: event.type, eventId: event.id });
 

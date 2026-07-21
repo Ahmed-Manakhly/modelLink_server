@@ -1,5 +1,5 @@
 const logger = require('./logger');
-const { isMarketplaceDemo } = require('./marketplaceDemo');
+
 
 const commonEnvVars = [
     'NODE_ENV',
@@ -28,8 +28,10 @@ const developmentEnvVars = [
 ];
 
 const productionEnvVars = [
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
+    'STRIPE',
+    // Webhook secrets are checked conditionally below, but listed here for visibility:
+    // 'STRIPE_WEBHOOK_SECRET',
+    // 'STRIPE_LOCAL_WEBHOOK_SECRET'
 ];
 
 const isProduction = () => process.env.NODE_ENV === 'production';
@@ -44,19 +46,17 @@ const validateEnvVars = () => {
         required.push(...developmentEnvVars);
     }
 
-    if (isProduction() && isMarketplaceDemo()) {
-        const demoOptional = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'];
-        demoOptional.forEach((name) => {
-            const idx = required.indexOf(name);
-            if (idx !== -1) required.splice(idx, 1);
-        });
-    }
-
     required.forEach((envVar) => {
+        // Only validate if not commented out in the array
         if (!process.env[envVar]) {
             missing.push(envVar);
         }
     });
+
+    // Custom check for Stripe Webhooks: We need AT LEAST ONE of these to be set in production
+    if (isProduction() && !process.env.STRIPE_WEBHOOK_SECRET && !process.env.STRIPE_LOCAL_WEBHOOK_SECRET) {
+        missing.push('STRIPE_WEBHOOK_SECRET or STRIPE_LOCAL_WEBHOOK_SECRET');
+    }
 
     if (isProduction() && !process.env.CORS_ORIGINS && !process.env.CLIENT_URL) {
         missing.push('CORS_ORIGINS or CLIENT_URL');

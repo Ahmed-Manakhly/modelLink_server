@@ -3,7 +3,7 @@ const prisma = require('../prisma/prisma');
 const createError = require('../utils/createError');
 const asyncErrorCatching = require('../utils/asyncErrorCatching');
 const { safeUserFields } = require('../utils/ApiFeaturesHelpersForUsers');
-const { isMarketplaceDemo } = require('../utils/marketplaceDemo');
+
 
 const getStripe = () => {
     if (!process.env.STRIPE) return null;
@@ -24,7 +24,32 @@ const buildConnectStatus = (user = {}) => ({
 });
 
 exports.getConnectStatus = asyncErrorCatching(async (req, res) => {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    let user = await prisma.user.findUnique({ where: { id: req.user.id } });
+
+    // Active Sync: If DB says onboarding is incomplete but we have a real Stripe account ID, check Stripe instantly.
+    // This bypasses the delay (or failure) of the local `account.updated` webhook.
+    if (user.stripeAccountId && !user.stripeAccountId.startsWith('acct_demo_') && 
+        (!user.stripeDetailsSubmitted || !user.stripeChargesEnabled)) {
+        try {
+            const stripe = getStripe();
+            if (stripe) {
+                const account = await stripe.accounts.retrieve(user.stripeAccountId);
+                if (account.details_submitted !== user.stripeDetailsSubmitted || 
+                    account.charges_enabled !== user.stripeChargesEnabled) {
+                    user = await prisma.user.update({
+                        where: { id: user.id },
+                        data: {
+                            stripeDetailsSubmitted: account.details_submitted,
+                            stripeChargesEnabled: account.charges_enabled
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            // Silently fall back to DB if Stripe API is unreachable
+        }
+    }
+
     res.status(200).json({
         status: 'success',
         data: buildConnectStatus(user),
@@ -43,43 +68,70 @@ exports.onboardConnect = asyncErrorCatching(async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { id: req.user.id } });
     let accountId = user.stripeAccountId;
 
-    if (!accountId) {
-        const account = await stripe.accounts.create({
-            type: 'express',
-            email: user.email,
-            capabilities: { transfers: { requested: true } },
-            metadata: { userId: user.id },
-        });
-        accountId = account.id;
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { stripeAccountId: accountId },
-        });
+    // Demo placeholder IDs (acct_demo_...) do not exist on Stripe.
+    // Treat them as "no account" — clear will happen only AFTER Stripe succeeds.
+    const isDemoAccount = accountId && accountId.startsWith('acct_demo_');
+    if (isDemoAccount) {
+        accountId = null;
     }
 
-    const accountLink = await stripe.accountLinks.create({
-        account: accountId,
-        refresh_url: getClientWalletUrl('?stripe=refresh'),
-        return_url: getClientWalletUrl('?stripe=return'),
-        type: 'account_onboarding',
-    });
+    try {
+        if (!accountId) {
+            const account = await stripe.accounts.create({
+                type: 'express',
+                email: user.email,
+                capabilities: { transfers: { requested: true } },
+                metadata: { userId: user.id },
+            });
+            accountId = account.id;
 
-    res.status(200).json({
-        status: 'success',
-        data: { url: accountLink.url },
-    });
+            // Only write to DB after Stripe succeeds — also clears any stale demo data
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    stripeAccountId: accountId,
+                    // Clear demo flags if they were set
+                    stripeChargesEnabled: false,
+                    stripeDetailsSubmitted: false,
+                },
+            });
+        }
+
+        const accountLink = await stripe.accountLinks.create({
+            account: accountId,
+            refresh_url: getClientWalletUrl('?stripe=refresh'),
+            return_url: getClientWalletUrl('?stripe=return'),
+            type: 'account_onboarding',
+        });
+
+        res.status(200).json({
+            status: 'success',
+            data: { url: accountLink.url },
+        });
+
+    } catch (err) {
+        // Stripe Connect not enabled on this platform account
+        if (err?.raw?.code === 'account_invalid' || err?.message?.includes('signed up for Connect')) {
+            return next(new createError(
+                503,
+                'Stripe Connect is not yet activated on this platform account. ' +
+                'Please visit https://dashboard.stripe.com/connect to enable it, then try again.'
+            ));
+        }
+        // Re-throw other Stripe errors
+        return next(new createError(502, err.message || 'Stripe Connect error.'));
+    }
 });
 
+
 exports.completeConnectDemo = asyncErrorCatching(async (req, res, next) => {
-    if (process.env.NODE_ENV === 'production' && !isMarketplaceDemo()) {
+    if (process.env.NODE_ENV === 'production') {
         return next(new createError(403, 'Demo Connect completion is not available in production.'));
     }
 
-    const dummyAccountId = `acct_demo_${String(req.user.id).slice(-12)}`;
     const user = await prisma.user.update({
         where: { id: req.user.id },
         data: {
-            stripeAccountId: req.user.stripeAccountId || dummyAccountId,
             stripeChargesEnabled: true,
             stripeDetailsSubmitted: true,
         },

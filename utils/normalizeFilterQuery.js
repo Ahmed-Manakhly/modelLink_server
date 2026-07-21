@@ -47,7 +47,7 @@ function coerceIntegerToken(rawValue) {
         return rawValue;
     }
     const n = parseInt(String(rawValue).trim(), 10);
-    return Number.isNaN(n) ? null : String(n);
+    return Number.isNaN(n) ? null : n;
 }
 
 /** Turn `status=A,B` into `{ in: [...] }` for ApiFeatures exact-match (controller layer). */
@@ -125,6 +125,20 @@ function normalizeFilterQuery(reqQuery = {}, spec = {}) {
 
     integerFields.forEach((field) => {
         if (filterQuery[field] === undefined) return;
+
+        if (typeof filterQuery[field] === 'string' && filterQuery[field].includes(',')) {
+            const tokens = filterQuery[field].split(',')
+                .map(s => parseInt(s.trim(), 10))
+                .filter(n => !Number.isNaN(n));
+            
+            if (tokens.length > 0) {
+                filterQuery[field] = { in: tokens };
+            } else {
+                delete filterQuery[field];
+            }
+            return;
+        }
+
         const coerced = coerceIntegerToken(filterQuery[field]);
         if (coerced === null || coerced === '' || coerced === undefined) {
             delete filterQuery[field];
