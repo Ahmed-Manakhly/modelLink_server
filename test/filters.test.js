@@ -43,7 +43,7 @@ describe('Filter query normalization', () => {
             'versions.modalityId': '12',
             page: '2',
         });
-        expect(normalized['versions.modalityId']).to.equal('12');
+        expect(normalized['versions.modalityId']).to.equal(12);
     });
 
     it('builds a Prisma-safe boolean where for versions.fda via ApiFeatures', () => {

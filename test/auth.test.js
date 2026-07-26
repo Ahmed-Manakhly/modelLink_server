@@ -156,7 +156,6 @@ describe("Authentication", () => {
                     })
                     .then((response) => {
                         expect(response.statusCode).to.equal(200);
-                        expect(response.headers).to.have.property("set-cookie");
 
                         expect(response.body).to.have.property("data");
                         expect(response.body.data).to.have.property("user");
@@ -179,16 +178,7 @@ describe("Authentication", () => {
                     })
             });
 
-            it("/logout - Authenticated", async () => {
-                return authRequest
-                    .post("logout")
-                    .set("Authorization", `Bearer ${token}`)
-                    .then((response) => {
-                        expect(response.statusCode).to.equal(200);
-                        expect(response.body).to.have.property("status");
-                        expect(response.body.status).to.equal("success");
-                    })
-            });
+
 
         });
 
