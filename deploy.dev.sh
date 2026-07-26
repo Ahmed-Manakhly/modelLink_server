@@ -54,5 +54,8 @@ until curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" | grep -q "200"; do
 done
 echo "✅ Backend is ready (after ${WAITED}s)"
 
+echo "⏳ Waiting 5 seconds for backend bootstrap to finish..."
+sleep 5
+
 # Run the dev-specific cache warmer
 bash ./scripts/warm-cache.dev.sh

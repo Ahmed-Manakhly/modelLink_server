@@ -95,9 +95,14 @@ app.use((req, res, next) => {
     next();
 });
 
+const sitemapController = require("./controller/sitemap.controller");
+
 app.get("/", (req, res) => {
     res.send("server is running...");
 });
+
+// Dynamic XML Sitemap Generator
+app.get("/sitemap.xml", sitemapController.getSitemap);
 
 // Health check route for deploy and cache-warm scripts
 app.get("/api/health", (req, res) => {

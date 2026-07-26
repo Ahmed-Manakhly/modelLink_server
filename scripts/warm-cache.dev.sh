@@ -9,7 +9,7 @@ get_env_val() {
     local val=""
     if [ -f ".env" ]; then
         # Matches key="value", key='value', or key=value
-        val=$(grep -E "^${key}=" .env | cut -d'=' -f2- | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+        val=$(grep -E "^${key}=" .env | cut -d'=' -f2- | tr -d '\r' | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
     fi
     if [ -z "$val" ]; then
         echo "$default_val"
@@ -63,6 +63,9 @@ echo "════════════════════════�
 echo ""
 echo "📦 Public Endpoints"
 warm "aiModels_all"           "$BASE_URL/aiModel"
+warm "categories_all"         "$BASE_URL/taxonomy/categories"
+warm "tags_all"               "$BASE_URL/taxonomy/tags"
+warm "modalities_all"         "$BASE_URL/taxonomy/modalities"
 
 # ─────────────────────────────────────────────
 # 2. Admin Authentication
@@ -103,10 +106,15 @@ fi
 # ─────────────────────────────────────────────
 echo ""
 echo "══════════════════════════════════════════════════════"
+# If the admin token failed, it incremented FAILED but not TOTAL, which causes PASSED to be negative.
+# We will just calculate PASSED as TOTAL - FAILED, but bound it to 0.
 PASSED=$((TOTAL - FAILED))
+if [ $PASSED -lt 0 ]; then
+    PASSED=0
+fi
 echo "✅ Warmed: $PASSED / $TOTAL endpoints"
 if [[ $FAILED -gt 0 ]]; then
-    echo "❌ Failed: $FAILED endpoints"
+    echo "❌ Failed: $FAILED endpoints (could include the admin token failure)"
 fi
 echo "🏁 Done at $(date '+%H:%M:%S') — cache is hot for 5 minutes"
 echo ""
