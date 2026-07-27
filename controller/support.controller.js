@@ -9,8 +9,8 @@ const {
 } = require('../utils/emailTemplates');
 const logger = require('../utils/logger');
 
-const getSupportInbox = () =>
-    process.env.SUPPORT_EMAIL || process.env.ADMIN_EMAIL || process.env.SMTP_EMAIL;
+const getSupportInbox = () => process.env.SMTP_EMAIL;
+// process.env.SUPPORT_EMAIL || process.env.ADMIN_EMAIL ||
 
 const trimField = (value, maxLength) => {
     if (typeof value !== 'string') return '';
@@ -35,7 +35,7 @@ exports.submitContact = asyncErrorCatching(async (req, res, next) => {
 
     const supportInbox = getSupportInbox();
     if (!supportInbox) {
-        logger.error('Support contact failed: no SUPPORT_EMAIL, ADMIN_EMAIL, or SMTP_EMAIL configured');
+        logger.error('Support contact failed: no SUPPORT_EMAIL or SMTP_EMAIL configured');
         return next(new createError(503, 'Support email is not configured.'));
     }
 

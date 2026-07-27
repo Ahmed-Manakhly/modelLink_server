@@ -1,0 +1,26 @@
+name: Deploy ModelLink Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup environment file
+        run: |
+          cp ~/model-link-backend/.env ./.env
+
+      - name: Build and deploy containers
+        run: |
+          bash ./deploy.sh
+
+      - name: System Cleanup
+        run: |
+          docker image prune -f

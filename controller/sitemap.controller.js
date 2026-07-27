@@ -3,7 +3,9 @@ const asyncErrorCatching = require("../utils/asyncErrorCatching");
 
 exports.getSitemap = asyncErrorCatching(async (req, res, next) => {
     const isDev = process.env.NODE_ENV !== 'production';
-    const domain = process.env.CLIENT_URL || (isDev ? 'http://127.0.0.1:3000' : 'https://www.modellink.com');
+    const domain = isDev
+        ? (process.env.CLIENT_URL_LOCAL || 'http://127.0.0.1:3000')
+        : (process.env.CLIENT_URL || 'https://www.modellink.com');
 
     const staticRoutes = [
         '', 

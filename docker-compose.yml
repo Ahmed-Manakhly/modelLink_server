@@ -1,5 +1,4 @@
 services:
-  # ----------------------------------------------------------
   db:
     container_name: modellink_postgres
     image: postgres:17-bookworm
@@ -10,8 +9,6 @@ services:
       PGDATA: ${PGDATA}
     volumes:
       - db:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     security_opt:
       - apparmor=docker-restrict-db
     networks:
@@ -22,7 +19,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-  # ----------------------------------------------------------
+
   pgadmin:
     container_name: modellink_pgadmin
     image: dpage/pgadmin4
@@ -38,10 +35,10 @@ services:
     networks:
       - db
     restart: unless-stopped
-  # ----------------------------------------------------------
+
   certbot-init:
     image: certbot/certbot
-    container_name: modellink_certbot-init
+    container_name: certbot-init
     volumes:
       - certs:/etc/letsencrypt
       - webroot:/var/www/certbot
@@ -60,13 +57,12 @@ services:
       fi '
     networks:
       - db
-  # ----------------------------------------------------------
+
   nginx:
     image: nginx:alpine
     container_name: modellink_nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     security_opt:
       - apparmor=docker-restrict-nginx
     depends_on:
@@ -75,12 +71,9 @@ services:
       backend:
         condition: service_started
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # Use a bind mount for local dev to access existing images
-      - ./public:/var/www/html/public:ro
-      # (For VM Production: uncomment the line below and comment the one above) 
-      # TO : Mount the same app-volume the backend uses so nginx can serve /public directly
-      # - app-volume:/var/www/html/public:ro
+      - ./nginx.conf:/etc/nginx/conf.d/main.conf:ro
+      # Mount the same app-volume the backend uses so nginx can serve /public directly
+      - app-volume:/var/www/html/public:ro
       # Webroot for ACME http-01 challenges
       - webroot:/var/www/certbot:ro
       # TLS certs produced by certbot
@@ -89,33 +82,23 @@ services:
       - db
       - modelink-network
     restart: unless-stopped
-  # ----------------------------------------------------------
+
   backend:
     container_name: modellink_backend
     build: .
-    # We DO NOT set 'user: modelLink' here. The container MUST start as root
-    # so entrypoint.sh can successfully chown volumes and use su-exec.
-    command: npm start
-    # -----------------------------------------------------------
+    user: modelLink
+    command: sh -c "chown -R modelLink:modelLink /public && npm start"
     env_file:
       - .env
     environment:
-      # Database
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@modellink_postgres:5432/${POSTGRES_DB}"
-      NODE_ENV: docker_development
+      NODE_ENV: production
       PUBLIC_DIR: /public
       LOG_DIR: /logs
       NODE_OPTIONS: "--dns-result-order=ipv4first"
     volumes:
-      # Use a bind mount for local dev to access existing images
-      - ./public:/public
-      # (For VM Production: uncomment the line below and comment the one above)
-      # TO : Use a named Docker volume for portability and persistence
-      # - app-volume:/public
-      # Use a bind mount for logs as well so you can read them locally
-      - ./logs:/logs
-      # (For VM Production: uncomment the line below and comment the one above)
-      # - logs-volume:/logs
+      - app-volume:/public
+      - logs-volume:/logs
     depends_on:
       db:
         condition: service_healthy
@@ -125,10 +108,9 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
-  # ----------------------------------------------------------
   certbot:
     image: certbot/certbot
-    container_name: modellink_certbot
+    container_name: certbot
     depends_on:
       - nginx
     volumes:
@@ -138,14 +120,16 @@ services:
     command: >
       sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --deploy-hook 'nginx -s reload' || true; done"
     restart: unless-stopped
-# ----------------------------------------------------------
+
 networks:
   db:
     driver: bridge
   modelink-network:
     external: true
-# ----------------------------------------------------------
+
 volumes:
   db:
+  app-volume:
+  logs-volume:
   webroot:
   certs:

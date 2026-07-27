@@ -11,7 +11,10 @@ const getStripe = () => {
 };
 
 const getClientWalletUrl = (query = '') => {
-    const base = process.env.CLIENT_URL || 'http://localhost:3000';
+    const isDev = process.env.NODE_ENV !== 'production';
+    const base = isDev
+        ? (process.env.CLIENT_URL_LOCAL || 'http://127.0.0.1:3000')
+        : (process.env.CLIENT_URL || 'https://www.modellink.com');
     const clean = base.replace(/\/+$/, '');
     return `${clean}/wallet${query}`;
 };

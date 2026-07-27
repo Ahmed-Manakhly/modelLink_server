@@ -33,6 +33,8 @@ const {
 } = require("./routes");
 
 const app = express();
+app.set('trust proxy', 1);
+
 const allowedOrigins = getAllowedOrigins();
 
 app.use(

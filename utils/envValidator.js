@@ -19,6 +19,8 @@ const commonEnvVars = [
     'PUBLIC_DIR',
     'MAX_FILE_SIZE',
     'ALLOWED_FILE_TYPES',
+    'CLIENT_URL',
+    'CLIENT_URL_LOCAL',
 ];
 
 const developmentEnvVars = [
@@ -56,10 +58,6 @@ const validateEnvVars = () => {
     // Custom check for Stripe Webhooks: We need AT LEAST ONE of these to be set in production
     if (isProduction() && !process.env.STRIPE_WEBHOOK_SECRET && !process.env.STRIPE_LOCAL_WEBHOOK_SECRET) {
         missing.push('STRIPE_WEBHOOK_SECRET or STRIPE_LOCAL_WEBHOOK_SECRET');
-    }
-
-    if (isProduction() && !process.env.CORS_ORIGINS && !process.env.CLIENT_URL) {
-        missing.push('CORS_ORIGINS or CLIENT_URL');
     }
 
     if (missing.length > 0) {

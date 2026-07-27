@@ -58,4 +58,4 @@ echo "⏳ Waiting 5 seconds for backend bootstrap to finish..."
 sleep 5
 
 # Run the dev-specific cache warmer
-bash ./scripts/warm-cache.dev.sh
+bash ./scripts/warm-cache.sh

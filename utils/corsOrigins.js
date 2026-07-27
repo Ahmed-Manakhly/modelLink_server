@@ -15,14 +15,20 @@ const parseOrigins = (value) =>
         .filter(Boolean);
 
 const getAllowedOrigins = () => {
-    const configured = parseOrigins(process.env.CORS_ORIGINS || process.env.CLIENT_URL);
+    const isDev = process.env.NODE_ENV !== 'production';
+    const clientUrl = isDev
+        ? (process.env.CLIENT_URL_LOCAL || 'http://127.0.0.1:3000')
+        : (process.env.CLIENT_URL || 'https://www.modellink.com');
+    const configured = parseOrigins(process.env.CORS_ORIGINS || clientUrl);
+    if (isDev) {
+        return Array.from(new Set([...configured, ...DEFAULT_DEV_ORIGINS]));
+    }
+
     if (configured.length > 0) {
         return configured;
     }
-    if (process.env.NODE_ENV === 'production') {
-        return [];
-    }
-    return DEFAULT_DEV_ORIGINS;
+    
+    return [];
 };
 
 const createCorsOriginChecker = (allowedOrigins = getAllowedOrigins()) => (origin, callback) => {
