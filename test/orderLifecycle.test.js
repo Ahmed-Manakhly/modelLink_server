@@ -6,10 +6,10 @@ const { prisma, BASE_URL, seedUser, signToken, authHeader } = require('./helpers
 const orderRequest = superTest(`${BASE_URL}/api/orders/`);
 
 describe('Order lifecycle API', () => {
-    const clientId = '501';
-    const devId = '502';
-    const modelId = 501;
-    const versionId = 501;
+    const clientId = '9501';
+    const devId = '9502';
+    const modelId = 9501;
+    const versionId = 9501;
 
     let clientToken;
     let devToken;

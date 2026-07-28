@@ -7,12 +7,12 @@ const disputeRequest = superTest(`${BASE_URL}/api/disputes/`);
 const adminRequest = superTest(`${BASE_URL}/api/admin/`);
 
 describe('Dispute & admin settings API', () => {
-    const clientId = '521';
-    const devId = '522';
-    const adminId = '523';
-    const modelId = 521;
-    const versionId = 521;
-    const orderId = 521;
+    const clientId = '9521';
+    const devId = '9522';
+    const adminId = '9523';
+    const modelId = 9521;
+    const versionId = 9521;
+    const orderId = 9521;
 
     let clientToken;
     let devToken;

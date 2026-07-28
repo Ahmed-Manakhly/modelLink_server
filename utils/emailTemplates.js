@@ -17,17 +17,20 @@ const getLogoUrl = () => {
 
 const getBrandHeaderHtml = () => {
     const logoUrl = getLogoUrl();
-    const logoBlock = logoUrl
-        ? `<img src="${escapeHtml(logoUrl)}" alt="ModelLink" height="44" style="display:block;margin:0 auto 8px;max-width:180px;height:auto;" />`
-        : '';
 
     return `
-        <div style="background:linear-gradient(135deg, #132730 0%, #09090b 100%);padding:28px 24px;text-align:center;border-radius:12px 12px 0 0;border-bottom:1px solid rgba(34, 211, 238, 0.2);">
-            ${logoBlock}
-            <div style="font-size:26px;font-weight:700;letter-spacing:-0.05em;font-family:'Poppins',Arial,Helvetica,sans-serif;color:#e2e2e8;margin-bottom:4px;">
-                Model<span style="color:#22d3ee;">Link</span>
-            </div>
-            <div style="color:#a1a1aa;font-size:13px;font-family:'Poppins',Arial,Helvetica,sans-serif;">AI Model Marketplace</div>
+        <div style="background:linear-gradient(135deg, #132730 0%, #09090b 100%);padding:28px 24px;border-radius:12px 12px 0 0;border-bottom:1px solid rgba(34, 211, 238, 0.2);">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                    ${logoUrl ? `<td width="44" style="padding-right:16px;vertical-align:middle;"><img src="${escapeHtml(logoUrl)}" alt="ModelLink" width="44" height="44" style="display:block;max-width:44px;height:auto;" /></td>` : ''}
+                    <td style="text-align:left;vertical-align:middle;">
+                        <div style="font-size:26px;font-weight:700;letter-spacing:-0.05em;font-family:'Poppins',Arial,Helvetica,sans-serif;color:#e2e2e8;margin-bottom:4px;line-height:1;">
+                            Model<span style="color:#22d3ee;">Link</span>
+                        </div>
+                        <div style="color:#a1a1aa;font-size:13px;font-family:'Poppins',Arial,Helvetica,sans-serif;line-height:1;">AI Model Marketplace</div>
+                    </td>
+                </tr>
+            </table>
         </div>
     `;
 };
@@ -122,8 +125,21 @@ const buildContactSupportAdminEmailHtml = ({
     });
 };
 
+// Helper to get domain dynamically for support email so we don't expose SMTP_EMAIL
+const getDynamicDomain = () => {
+    try {
+        const prodUrl = process.env.REACT_APP_CLIENT_URL_PROD || 'https://modellink.com';
+        const url = new URL(prodUrl);
+        let domain = url.hostname;
+        if (domain.startsWith('www.')) domain = domain.substring(4);
+        return domain;
+    } catch (e) {
+        return 'modellink.com';
+    }
+};
+
 const buildContactSupportReceiptEmailHtml = ({ firstName, messagePreview }) => {
-    const supportEmail = process.env.SMTP_EMAIL || 'support@modellink.com';
+    const supportEmail = `support@${getDynamicDomain()}`;
     return wrapEmailLayout({
         title: 'Support Request Received',
         preheader: 'We received your message and will get back to you soon.',

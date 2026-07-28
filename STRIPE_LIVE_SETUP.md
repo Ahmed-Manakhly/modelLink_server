@@ -60,17 +60,39 @@ STRIPE_WEBHOOK_SECRET="we_..."
 ## 4. Local CLI Testing (Development)
 To test webhooks on your local machine, use the Stripe CLI.
 
-1. **Login to Stripe CLI:**
-   ```bash
-   stripe login
-   ```
-2. **Start the Webhook Forwarder:**
-   Forward events from Stripe to your local server (Note: the connection may timeout if left idle, resulting in `websocket: close sent`):
-   ```bash
-   stripe listen --forward-to localhost:8000/api/orders/stripe-webhook
-   ```
-3. **Update your `.env`:**
-   The CLI will output a webhook signing secret (`whsec_...`). Copy this and paste it into `STRIPE_LOCAL_WEBHOOK_SECRET` in your server's `.env` file.
+### Step 1: Login to Stripe CLI
+Run the login command:
+```bash
+stripe login
+```
+**CRITICAL: Browser Authorization**
+- The CLI does **not** log you in automatically. It will print a URL.
+- **You MUST copy and paste that URL into your browser.**
+- In the browser, check the top right corner to ensure you are selecting the **correct Stripe Workspace/Account** (the one that matches your `.env` keys).
+- Click "Allow access".
+
+### Step 2: Start the Webhook Forwarder
+Forward events from Stripe to your local server:
+```bash
+stripe listen --forward-to localhost:8000/api/orders/stripe-webhook
+```
+*(Note: the connection may timeout if left idle, resulting in `websocket: close sent`. Just restart the command).*
+
+### Step 3: Update your `.env`
+The CLI will output a webhook signing secret (`whsec_...`). Copy this and paste it into `STRIPE_LOCAL_WEBHOOK_SECRET` in your server's `.env` file, then **restart your backend container**.
+
+---
+
+### 🚨 Troubleshooting Local Webhooks
+
+**Issue 1: Webhooks are not appearing in the terminal when I make a payment.**
+* **Cause**: Your Stripe CLI is logged into a different workspace (or a Sandbox) than the API keys in your `.env` file.
+* **Fix**: Run `stripe config --list` and check the `account_id` and `test_mode_pub_key`. If they don't match your `.env`, you must re-run `stripe login` and carefully select the correct account in the browser.
+
+**Issue 2: `stripe login` prints a JSON block and instantly exits (Headless Mode).**
+* **Cause**: Your terminal environment is not acting as a standard TTY, forcing the CLI into `--non-interactive` mode.
+* **Fix 1**: Run `stripe login --interactive` and manually paste your `sk_test_...` key.
+* **Fix 2 (Hard Override)**: Bypass the CLI entirely by opening `~/.config/stripe/config.toml` in your editor and manually pasting your `account_id`, `test_mode_api_key`, and `test_mode_pub_key`. Then run `stripe listen` to generate a new `whsec_...` secret.
 
 ---
 
