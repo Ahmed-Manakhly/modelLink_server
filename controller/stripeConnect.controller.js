@@ -3,6 +3,7 @@ const prisma = require('../prisma/prisma');
 const createError = require('../utils/createError');
 const asyncErrorCatching = require('../utils/asyncErrorCatching');
 const { safeUserFields } = require('../utils/ApiFeaturesHelpersForUsers');
+const logger = require('../utils/logger');
 
 
 const getStripe = () => {
@@ -53,9 +54,17 @@ exports.getConnectStatus = asyncErrorCatching(async (req, res) => {
         }
     }
 
+    const status = buildConnectStatus(user);
+    logger.info('Stripe Connect status retrieved successfully', {
+        userId: user.id,
+        event: 'getConnectStatus',
+        outcome: 'Success',
+        ...status
+    });
+
     res.status(200).json({
         status: 'success',
-        data: buildConnectStatus(user),
+        data: status,
     });
 });
 
@@ -107,6 +116,13 @@ exports.onboardConnect = asyncErrorCatching(async (req, res, next) => {
             type: 'account_onboarding',
         });
 
+        logger.info('Stripe Connect onboarding link generated successfully', {
+            userId: user.id,
+            accountId: accountId,
+            event: 'onboardConnect',
+            outcome: 'Success'
+        });
+
         res.status(200).json({
             status: 'success',
             data: { url: accountLink.url },
@@ -141,12 +157,20 @@ exports.completeConnectDemo = asyncErrorCatching(async (req, res, next) => {
         select: safeUserFields,
     });
 
+    const status = buildConnectStatus(user);
+    logger.info('Stripe Connect demo setup completed successfully', {
+        userId: user.id,
+        event: 'completeConnectDemo',
+        outcome: 'Success',
+        ...status
+    });
+
     res.status(200).json({
         status: 'success',
         message: 'Stripe Connect demo setup complete.',
         data: {
             user,
-            ...buildConnectStatus(user),
+            ...status,
         },
     });
 });

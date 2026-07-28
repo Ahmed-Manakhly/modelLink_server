@@ -423,8 +423,14 @@ exports.getAllAiModels = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, error));
     }
 
-    logger.info('Successfully retrieved all AI Models', { count: models.length, requestId: req.id });
-    res.status(200).json({
+    logger.info('Successfully retrieved all AI Models', {
+        event: 'getAllAiModels',
+        outcome: 'Success',
+        count: models.length,
+        userId: req.user ? req.user.id : 'anonymous'
+    });
+
+    return res.status(200).json({
         status: "success",
         pagination,
         data: { models }
@@ -478,7 +484,13 @@ exports.getUserAiModels = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(400, error));
     }
 
-    logger.info('Successfully retrieved developer AI Models', { developerId: req.params.id, count: models.length, requestId: req.id });
+    logger.info('Successfully retrieved developer AI Models', {
+        event: 'getDeveloperAiModels',
+        outcome: 'Success',
+        developerId: req.params.id,
+        count: models.length,
+        userId: req.user ? req.user.id : 'anonymous'
+    });
     res.status(200).json({
         status: "success",
         pagination,
@@ -564,7 +576,12 @@ exports.getAiModel = asyncErrorCatching(async (req, res, next) => {
         }).catch(err => logger.error('Failed to increment views', { error: err.message, modelId: existingAiModel.id }));
     }
 
-    logger.info('Successfully retrieved AI Model details', { modelId: existingAiModel.id, requestId: req.id });
+    logger.info('Successfully retrieved AI Model details', {
+        event: 'getAiModel',
+        outcome: 'Success',
+        modelId: existingAiModel.id,
+        userId: req.user ? req.user.id : 'anonymous'
+    });
     res.status(200).json({
         status: "success",
         data: { model: existingAiModel }

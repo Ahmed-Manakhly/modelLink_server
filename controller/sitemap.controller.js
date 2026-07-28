@@ -1,5 +1,6 @@
 const prisma = require("../prisma/prisma");
 const asyncErrorCatching = require("../utils/asyncErrorCatching");
+const logger = require("../utils/logger");
 
 exports.getSitemap = asyncErrorCatching(async (req, res, next) => {
     const isDev = process.env.NODE_ENV !== 'production';
@@ -54,6 +55,12 @@ exports.getSitemap = asyncErrorCatching(async (req, res, next) => {
     }
 
     xml += `</urlset>`;
+
+    logger.info("Sitemap retrieved successfully", { 
+        urlCount: models.length + staticRoutes.length,
+        event: "getSitemap",
+        outcome: "Success"
+    });
 
     res.header('Content-Type', 'application/xml');
     res.status(200).send(xml);
