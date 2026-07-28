@@ -606,6 +606,11 @@ exports.deleteAiModel = asyncErrorCatching(async (req, res, next) => {
         return next(new createError(403, 'You can only archive your own models'));
     }
 
+    if (existingModel.sales > 0) {
+        logger.error('Failed to delete AI Model - Model has sales', { modelId, requestId: req.id });
+        return next(new createError(400, 'Cannot delete an AI Model that has already been sold.'));
+    }
+
     await prisma.aiModel.update({
         where: { id: modelId },
         data: {

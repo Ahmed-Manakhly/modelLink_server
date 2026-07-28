@@ -32,7 +32,7 @@ const checkVersionOwnership = async (versionId, userId) => {
 
 exports.createVersion = asyncErrorCatching(async (req, res, next) => {
     const aiModelId = parseInt(req.params.id, 10);
-    const { version, changelog, isPrimary, isActive, price } = req.body;
+    const { version, changelog, isPrimary, isActive, price, deliveryTime } = req.body;
 
     if (!version) {
         return next(new createError(400, "Version code/name is required."));
@@ -71,6 +71,7 @@ exports.createVersion = asyncErrorCatching(async (req, res, next) => {
             data: {
                 version,
                 price: parseInt(price, 10),
+                deliveryTime: deliveryTime ? parseInt(deliveryTime, 10) : undefined,
                 isPrimary: isPrimary !== undefined ? (isPrimary === 'true' || isPrimary === true) : false,
                 isActive: isActive !== undefined ? (isActive === 'true' || isActive === true) : true,
                 aiModelId
