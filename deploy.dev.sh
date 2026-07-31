@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# =============================================================
+# ModelLink Local/Dev Deploy Script
+# Usage: bash deploy.dev.sh
+# =============================================================
+
+set -e
+
+# --------------------------------------------------------------
+# 1. Docker Network
+# --------------------------------------------------------------
+echo ""
+echo "[1/2] Checking Docker network..."
 # Check if the network exists
 if ! docker network ls | grep -q "modelink-network"; then
   echo "🌐 Creating docker network 'modelink-network'..."

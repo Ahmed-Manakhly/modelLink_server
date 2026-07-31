@@ -1,0 +1,90 @@
+#include <tunables/global>
+
+# Nginx AppArmor Profile
+profile modellink-restrict-nginx flags=(attach_disconnected, mediate_deleted) {
+    include <abstractions/base>
+    include <abstractions/nameservice>
+
+    # Allow nginx binaries
+    /usr/sbin/nginx rix,
+    /usr/bin/nginx rix,
+    /bin/sh ix,
+    /bin/dash ix,
+    /bin/bash ix,
+    /bin/busybox ix,
+    /usr/bin/openssl rix,
+    # [REMOVED] certbot no longer runs inside the container. SSL is handled by the Host Nginx.
+    # /usr/bin/certbot rix,
+
+    # Allow Docker entrypoint script
+    /docker-entrypoint.sh rix,
+    /docker-entrypoint.d/ r,
+    /docker-entrypoint.d/* rix,
+
+    # Deny access to backend entrypoint (not needed by nginx)
+    deny /app/entrypoint.sh r,
+
+    # Allow library access
+    /lib/** rm,
+    /usr/lib/** rm,
+    /usr/local/lib/** rm,
+    /lib64/** rm,
+
+    # Allow nginx configuration files (read-only)
+    /etc/nginx/** r,
+    /etc/nginx/conf.d/** r,
+    /etc/nginx/nginx.conf r,
+
+    # [REMOVED] SSL certs and certbot webroot are no longer needed inside the container.
+    # SSL is handled by the Global Host Nginx.
+    # /etc/letsencrypt/** r,
+    # /var/www/certbot/** r,
+
+    # Allow public files (read-only)
+    /var/www/html/public/** r,
+
+    # Allow nginx runtime directories
+    /var/run/nginx.pid rw,
+    /var/cache/nginx/** rw,
+    /var/log/nginx/** w,
+    /run/** rw,
+    /tmp/** rw,
+
+    # Allow proc access (limited)
+    @{PROC}/sys/kernel/random/uuid r,
+    @{PROC}/cpuinfo r,
+    @{PROC}/meminfo r,
+    @{PROC}/sys/kernel/hostname r,
+    @{PROC}//fd/* rw,
+    /sys/devices/system/cpu/** r,
+
+    # Network capabilities
+    capability net_bind_service,
+    capability setgid,
+    capability setuid,
+    capability dac_override,
+    capability chown,
+    capability mknod,
+
+    # Network access
+    network inet stream,
+    network inet6 stream,
+    network inet dgram,
+    network inet6 dgram,
+    network unix stream,
+
+    # Allow signals for reload/restart
+    signal (receive) peer=unconfined,
+    signal (send) peer=modellink-restrict-nginx,
+
+    # Deny dangerous operations
+    deny /bin/mount x,
+    deny /bin/umount x,
+    deny /sbin/insmod x,
+    deny /sbin/modprobe x,
+    deny capability sys_admin,
+    deny capability sys_module,
+    deny @{PROC}/docker*/cmdline w,
+    deny @{PROC}/docker*/fd/** w,
+    deny @{PROC}/sys/kernel/core_pattern w,
+}

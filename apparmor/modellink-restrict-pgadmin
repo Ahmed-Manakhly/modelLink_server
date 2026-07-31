@@ -1,0 +1,76 @@
+#include <tunables/global>
+
+# Database AppArmor Profile for PostgreSQL/pgAdmin
+profile modellink-restrict-pgadmin flags=(attach_disconnected, mediate_deleted) {
+    include <abstractions/base>
+    include <abstractions/nameservice>
+    include <abstractions/python>
+
+    # Allow full system access for databases and web apps
+    /bin/** rix,
+    /usr/bin/** rix,
+    /usr/local/bin/** rix,
+    /sbin/** rix,
+    /usr/sbin/** rix,
+    /usr/lib/postgresql/** rix,
+    /usr/lib/postgresql/*/bin/** rix,
+    /usr/libexec/** rix,
+    /usr/libexec/postfix/** rix,
+    /lib/** rm,
+    /usr/lib/** rm,
+    /usr/local/lib/** rm,
+    /lib64/** rm,
+
+    # Allow Python virtual environment access
+    /venv/** rix,
+    /venv/bin/** rix,
+    /venv/bin/python* rix,
+    /venv/bin/gunicorn rix,
+    /venv/lib/python*/** rm,
+    
+    # Allow PostgreSQL client tools (all versions)
+    /usr/local/pgsql-*/bin/* ix,
+    /usr/local/pgsql-*/** ix,
+    /usr/local/pgsql-*/pg_dumpall ix,
+    /usr/local/pgsql-*/pg_dump ix,
+    /usr/local/pgsql-*/pg_restore ix,
+    /usr/local/pgsql-*/psql ix,
+
+    # Allow full filesystem access for database operations
+    /** rwmkl,
+
+    # Allow all capabilities except sys_admin
+    capability,
+    deny capability sys_admin,
+
+    # Allow network
+    network inet stream,
+    network inet6 stream,
+    network inet dgram,
+    network inet6 dgram,
+    network unix stream,
+    network unix dgram,
+
+    # Allow proc access
+    @{PROC}/** rw,
+    /sys/** r,
+
+    # Allow signals and ptrace for database management
+    signal,
+    ptrace,
+
+    # Allow mount operations for database volumes
+    mount,
+    umount,
+
+    # Explicitly allow PostgreSQL binaries
+    /usr/lib/postgresql/17/bin/postgres rix,
+    /usr/lib/postgresql/17/bin/* rix,
+
+    # Allow postfix for pgAdmin
+    /usr/libexec/postfix/postfix-script rix,
+
+    # Still deny some dangerous docker operations
+    deny @{PROC}/docker*/cmdline w,
+    deny @{PROC}/docker*/fd/** w,
+}

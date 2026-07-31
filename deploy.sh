@@ -1,5 +1,33 @@
 #!/bin/bash
 
+# =============================================================
+# ModelLink Production Deploy Script
+# Usage: bash deploy.sh
+# =============================================================
+
+set -e
+
+# --------------------------------------------------------------
+# 1. AppArmor Profiles
+# Copies profiles from the repo into the system and loads them.
+# This runs on every deploy to ensure profiles are always current.
+# --------------------------------------------------------------
+echo "[1/3] Loading AppArmor profiles..."
+sudo mkdir -p /etc/apparmor.d/
+sudo cp apparmor/modellink-restrict-db       /etc/apparmor.d/modellink-restrict-db
+sudo cp apparmor/modellink-restrict-pgadmin  /etc/apparmor.d/modellink-restrict-pgadmin
+sudo cp apparmor/modellink-restrict-nginx    /etc/apparmor.d/modellink-restrict-nginx
+sudo apparmor_parser -r -W /etc/apparmor.d/modellink-restrict-db
+sudo apparmor_parser -r -W /etc/apparmor.d/modellink-restrict-pgadmin
+sudo apparmor_parser -r -W /etc/apparmor.d/modellink-restrict-nginx
+echo "  ✅ AppArmor profiles loaded:"
+sudo aa-status | grep modellink-restrict
+
+# --------------------------------------------------------------
+# 2. Docker Network
+# --------------------------------------------------------------
+echo ""
+echo "[2/3] Checking Docker network..."
 # Check if the network exists
 if ! docker network ls | grep -q "modelink-network"; then
   echo "🌐 Creating docker network 'modelink-network'..."

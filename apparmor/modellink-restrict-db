@@ -1,0 +1,79 @@
+#include <tunables/global>
+
+# Database AppArmor Profile for PostgreSQL/pgAdmin
+profile modellink-restrict-db flags=(attach_disconnected, mediate_deleted) {
+    include <abstractions/base>
+    include <abstractions/nameservice>
+
+    # Allow full system access for databases
+    /bin/** rix,
+    /usr/bin/** rix,
+    /usr/local/bin/** rix,
+    /sbin/** rix,
+    /usr/sbin/** rix,
+    /usr/lib/postgresql/** rix,
+    /usr/lib/postgresql/*/bin/** rix,
+    /lib/** rm,
+    /usr/lib/** rm,
+    /usr/local/lib/** rm,
+    /lib64/** rm,
+
+    # Allow full filesystem access for database operations
+    /** rwmkl,
+    
+    # Allow root directory operations (find, mmap)
+    / rw,
+    / m,
+
+    # Allow Perl interpreter and related libraries (psql uses Perl scripts)
+    /usr/bin/perl ix,
+    /usr/bin/perl* ix,
+    /usr/bin/psql ix,
+    /usr/lib/perl/** rm,
+    /usr/share/perl/** rm,
+    /usr/lib/x86_64-linux-gnu/perl/** rm,
+
+    # Allow postgresql-common wrapper scripts (pg_wrapper) and helpers
+    /usr/share/postgresql-common/pg_wrapper ix,
+    /usr/share/postgresql-common/** ix,
+    
+    # Allow shell interpreters to exec pg_wrapper
+    /bin/sh ix,
+    /bin/bash ix,
+    /bin/dash ix,
+    
+    # Allow find command
+    /usr/bin/find ix,
+    
+    # Allow all capabilities except sys_admin
+    capability,
+    deny capability sys_admin,
+
+    # Allow network
+    network inet stream,
+    network inet6 stream,
+    network inet dgram,
+    network inet6 dgram,
+    network unix stream,
+    network unix dgram,
+
+    # Allow proc access
+    @{PROC}/** rw,
+    /sys/** r,
+
+    # Allow signals and ptrace for database management
+    signal,
+    ptrace,
+
+    # Allow mount operations for database volumes
+    mount,
+    umount,
+
+    # Explicitly allow PostgreSQL binaries
+    /usr/lib/postgresql/17/bin/postgres rix,
+    /usr/lib/postgresql/17/bin/* rix,
+
+    # Still deny some dangerous docker operations
+    deny @{PROC}/docker*/cmdline w,
+    deny @{PROC}/docker*/fd/** w,
+}

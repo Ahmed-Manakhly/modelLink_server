@@ -10,7 +10,7 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
     security_opt:
-      - apparmor=docker-restrict-db
+      - apparmor=modellink-restrict-db
     networks:
       - db
     restart: unless-stopped
@@ -29,34 +29,35 @@ services:
     ports:
       - "5333:80"
     security_opt:
-      - apparmor=docker-restrict-pgadmin
+      - apparmor=modellink-restrict-pgadmin
     depends_on:
       - db
     networks:
       - db
     restart: unless-stopped
 
-  certbot-init:
-    image: certbot/certbot
-    container_name: certbot-init
-    volumes:
-      - certs:/etc/letsencrypt
-      - webroot:/var/www/certbot
-    entrypoint: ""
-    command: >
-      sh -c ' if [ ! -d "/etc/letsencrypt/live/api.millensys.com" ]; then
-        echo "Creating self-signed certificate for initial setup...";
-        mkdir -p /etc/letsencrypt/live/api.millensys.com;
-        openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
-          -keyout /etc/letsencrypt/live/api.millensys.com/privkey.pem \
-          -out /etc/letsencrypt/live/api.millensys.com/fullchain.pem \
-          -subj "/CN=api.millensys.com";
-        echo "Self-signed certificate created. Replace with real cert using certbot.";
-      else
-        echo "Certificate already exists.";
-      fi '
-    networks:
-      - db
+  # [DELETE] certbot-init is no longer needed. SSL is handled by the Global Host Nginx + Certbot.
+  # certbot-init:
+  #   image: certbot/certbot
+  #   container_name: certbot-init
+  #   volumes:
+  #     - certs:/etc/letsencrypt
+  #     - webroot:/var/www/certbot
+  #   entrypoint: ""
+  #   command: >
+  #     sh -c ' if [ ! -d "/etc/letsencrypt/live/api.millensys.com" ]; then
+  #       echo "Creating self-signed certificate for initial setup...";
+  #       mkdir -p /etc/letsencrypt/live/api.millensys.com;
+  #       openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+  #         -keyout /etc/letsencrypt/live/api.millensys.com/privkey.pem \
+  #         -out /etc/letsencrypt/live/api.millensys.com/fullchain.pem \
+  #         -subj "/CN=api.millensys.com";
+  #       echo "Self-signed certificate created. Replace with real cert using certbot.";
+  #     else
+  #       echo "Certificate already exists.";
+  #     fi '
+  #   networks:
+  #     - db
 
   nginx:
     image: nginx:alpine
@@ -64,20 +65,20 @@ services:
     ports:
       - "8080:80"
     security_opt:
-      - apparmor=docker-restrict-nginx
+      - apparmor=modellink-restrict-nginx
     depends_on:
-      certbot-init:
-        condition: service_completed_successfully
+      # [DELETE] certbot-init dependency removed — no longer needed.
+      # certbot-init:
+      #   condition: service_completed_successfully
       backend:
         condition: service_started
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/main.conf:ro
       # Mount the same app-volume the backend uses so nginx can serve /public directly
       - app-volume:/var/www/html/public:ro
-      # Webroot for ACME http-01 challenges
-      - webroot:/var/www/certbot:ro
-      # TLS certs produced by certbot
-      - certs:/etc/letsencrypt:ro
+      # [DELETE] Webroot and certs volumes are no longer needed — SSL is on the Host Nginx.
+      # - webroot:/var/www/certbot:ro
+      # - certs:/etc/letsencrypt:ro
     networks:
       - db
       - modelink-network
@@ -108,18 +109,19 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    depends_on:
-      - nginx
-    volumes:
-      - certs:/etc/letsencrypt
-      - webroot:/var/www/certbot
-    entrypoint: ""
-    command: >
-      sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --deploy-hook 'nginx -s reload' || true; done"
-    restart: unless-stopped
+  # [DELETE] certbot renewal service is no longer needed. Ubuntu systemd timer handles renewal automatically.
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   depends_on:
+  #     - nginx
+  #   volumes:
+  #     - certs:/etc/letsencrypt
+  #     - webroot:/var/www/certbot
+  #   entrypoint: ""
+  #   command: >
+  #     sh -c "trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot --deploy-hook 'nginx -s reload' || true; done"
+  #   restart: unless-stopped
 
 networks:
   db:
@@ -131,5 +133,6 @@ volumes:
   db:
   app-volume:
   logs-volume:
-  webroot:
-  certs:
+  # [DELETE] webroot and certs volumes removed — SSL is handled by the Global Host Nginx.
+  # webroot:
+  # certs:
