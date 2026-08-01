@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-# Usage: bash warm-cache.sh (defaults to localhost/127.0.0.1)
-# Usage: bash warm-cache.sh www.modellink.com (for prod Nginx)
-# nginx expects Host: ????? — must match server_name in nginx.conf
-SERVER_HOST="${1:-127.0.0.1}"
-
+# Usage: bash warm-cache.sh
+# It will automatically extract the Host from CLIENT_URL in .env, falling back to 127.0.0.1
 # Helper to read values from .env safely without sourcing
 get_env_val() {
     local key="$1"
@@ -20,6 +17,19 @@ get_env_val() {
         echo "$val"
     fi
 }
+
+# Check environment and select the correct client URL
+NODE_ENV_VAL=$(get_env_val "NODE_ENV" "development")
+
+if [ "$NODE_ENV_VAL" = "production" ]; then
+    RAW_CLIENT_URL=$(get_env_val "CLIENT_URL" "http://127.0.0.1:3000")
+else
+    RAW_CLIENT_URL=$(get_env_val "CLIENT_URL_LOCAL" "http://127.0.0.1:3000")
+fi
+
+# Strip http:// and https:// to get just the domain
+EXTRACTED_HOST=$(echo "$RAW_CLIENT_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
+SERVER_HOST="${1:-$EXTRACTED_HOST}"
 
 ADMIN_EMAIL=$(get_env_val "ADMIN_EMAIL" "admin@modellink.com")
 ADMIN_PASSWORD=$(get_env_val "ADMIN_PASSWORD" "A@1234567891a")
