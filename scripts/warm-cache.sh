@@ -32,7 +32,7 @@ EXTRACTED_HOST=$(echo "$RAW_CLIENT_URL" | sed -e 's|^[^/]*//||' -e 's|/.*$||')
 SERVER_HOST="${1:-$EXTRACTED_HOST}"
 
 ADMIN_EMAIL=$(get_env_val "ADMIN_EMAIL" "admin@modellink.com")
-ADMIN_PASSWORD=$(get_env_val "ADMIN_PASSWORD" "A@1234567891a")
+ADMIN_PASSWORD=$(get_env_val "ADMIN_PASSWORD" "")
 PORT=$(get_env_val "PORT" "8080")
 
 # Hitting localhost:PORT allows bypassing VPN hairpin issues while injecting the Host header for Nginx

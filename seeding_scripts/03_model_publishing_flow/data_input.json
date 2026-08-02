@@ -1,0 +1,35 @@
+{
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "THROTTLE_MS": 1000,
+    "MAX_RETRIES": 2,
+    "RETRY_DELAYS_MS": [
+      3000,
+      10000
+    ]
+  },
+  "developers": [
+    {
+      "id": "dev_01",
+      "email": "seed_dev_01@modellink.com",
+      "password": "Password123!"
+    },
+    {
+      "id": "dev_02",
+      "email": "seed_dev_02@modellink.com",
+      "password": "Password123!"
+    },
+    {
+      "id": "dev_03",
+      "email": "seed_dev_03@modellink.com",
+      "password": "Password123!"
+    },
+    {
+      "id": "dev_04",
+      "email": "seed_dev_04@modellink.com",
+      "password": "Password123!"
+    }
+  ],
+  "models": []
+}

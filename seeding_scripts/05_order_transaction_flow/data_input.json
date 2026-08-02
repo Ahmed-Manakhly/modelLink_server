@@ -1,0 +1,47 @@
+{
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "STRIPE_MODE": "test",
+    "THROTTLE_MS": 1000
+  },
+  "actors": {
+    "client_01": {
+      "email": "seed_client_01@modellink.com",
+      "password": "Password123!"
+    },
+    "client_02": {
+      "email": "seed_client_02@modellink.com",
+      "password": "Password123!"
+    },
+    "client_03": {
+      "email": "seed_client_03@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_01": {
+      "email": "seed_dev_01@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_02": {
+      "email": "seed_dev_02@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_03": {
+      "email": "seed_dev_03@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_04": {
+      "email": "seed_dev_04@modellink.com",
+      "password": "Password123!"
+    }
+  },
+  "admin": {
+    "email": "admin@modelLink.com",
+    "password": "A@1234567891a"
+  },
+  "orders": [],
+  "platformFeeRef": {
+    "_note": "Matches SystemSettings.platformFeeValue in DB (default: 20%)",
+    "platformFeePercent": 20
+  }
+}

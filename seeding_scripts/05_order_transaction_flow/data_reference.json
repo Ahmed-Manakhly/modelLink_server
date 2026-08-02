@@ -1,0 +1,126 @@
+{
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "STRIPE_MODE": "test",
+    "THROTTLE_MS": 1000
+  },
+  "actors": {
+    "client_01": {
+      "email": "seed_client_01@modellink.com",
+      "password": "Password123!"
+    },
+    "client_02": {
+      "email": "seed_client_02@modellink.com",
+      "password": "Password123!"
+    },
+    "client_03": {
+      "email": "seed_client_03@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_01": {
+      "email": "seed_dev_01@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_02": {
+      "email": "seed_dev_02@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_03": {
+      "email": "seed_dev_03@modellink.com",
+      "password": "Password123!"
+    },
+    "dev_04": {
+      "email": "seed_dev_04@modellink.com",
+      "password": "Password123!"
+    }
+  },
+  "admin": {
+    "email": "admin@modelLink.com",
+    "password": "A@1234567891a"
+  },
+  "orders": [
+    {
+      "id": "order_01",
+      "buyer": "client_01",
+      "developer": "dev_01",
+      "modelTitle": "ChestScan Classifier",
+      "path": "happy",
+      "review": {
+        "star": 5,
+        "desc": "Outstanding accuracy on our chest X-ray screening pipeline. Integrated in under a day."
+      }
+    },
+    {
+      "id": "order_02",
+      "buyer": "client_01",
+      "developer": "dev_01",
+      "modelTitle": "NoduleTracker CT",
+      "path": "happy",
+      "review": {
+        "star": 4,
+        "desc": "Solid detection rates. Lung-RADS output saved our radiologists significant reporting time."
+      }
+    },
+    {
+      "id": "order_03",
+      "buyer": "client_01",
+      "developer": "dev_02",
+      "modelTitle": "ClinicalNER Pro",
+      "path": "dispute",
+      "dispute": {
+        "reason": "The delivered API endpoint is returning 500 errors on all requests. The documentation provided does not match the actual endpoint structure.",
+        "resolution": "RELEASE_TO_DEVELOPER",
+        "adminNotes": "Verified endpoint operational on admin test using provided credentials. Issue was client-side network configuration. Resolved in favour of developer."
+      }
+    },
+    {
+      "id": "order_04",
+      "buyer": "client_02",
+      "developer": "dev_01",
+      "modelTitle": "BrainTumor Delineator",
+      "path": "happy",
+      "review": {
+        "star": 5,
+        "desc": "The 3D segmentation output is exactly what our surgical team needed. Dice scores held up on our own dataset."
+      }
+    },
+    {
+      "id": "order_05",
+      "buyer": "client_02",
+      "developer": "dev_02",
+      "modelTitle": "RadReport Generator",
+      "path": "happy",
+      "review": {
+        "star": 4,
+        "desc": "RSNA-format output fits directly into our existing RIS workflow. Minor terminology differences, but very usable."
+      }
+    },
+    {
+      "id": "order_06",
+      "buyer": "client_02",
+      "developer": "dev_03",
+      "modelTitle": "SepsisAlert Engine",
+      "path": "happy",
+      "review": {
+        "star": 5,
+        "desc": "Firing alerts 4–6 hours ahead of clinical recognition. ICU team is already relying on it daily."
+      }
+    },
+    {
+      "id": "order_07",
+      "buyer": "client_03",
+      "developer": "dev_03",
+      "modelTitle": "GeneVariant Classifier",
+      "path": "happy",
+      "review": {
+        "star": 4,
+        "desc": "Good VUS resolution rate. ClinVar integration is a nice touch. Would appreciate more model transparency documentation."
+      }
+    }
+  ],
+  "platformFeeRef": {
+    "_note": "Matches SystemSettings.platformFeeValue in DB (default: 20%)",
+    "platformFeePercent": 20
+  }
+}

@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: self-hosted
@@ -15,7 +18,7 @@ jobs:
 
       - name: Setup environment file
         run: |
-          cp ~/model-link-backend/.env ./.env
+          cp ~/modelink-backend/.env ./.env
 
       - name: Build and deploy containers
         run: |

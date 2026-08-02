@@ -1,0 +1,35 @@
+{
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "THROTTLE_MS": 1000
+  },
+  "actors": {
+    "developers": [
+      {
+        "id": "dev_01",
+        "email": "seed_dev_01@modellink.com",
+        "password": "Password123!"
+      },
+      {
+        "id": "dev_02",
+        "email": "seed_dev_02@modellink.com",
+        "password": "Password123!"
+      },
+      {
+        "id": "dev_03",
+        "email": "seed_dev_03@modellink.com",
+        "password": "Password123!"
+      }
+    ]
+  },
+  "admin": {
+    "email": "admin@modelLink.com",
+    "password": "A@1234567891a"
+  },
+  "payout": {
+    "_note": "Each dev requests their full available balance. Amount is read from wallet at runtime.",
+    "strategy": "full_balance",
+    "idempotency_marker": "seed_flow_06"
+  }
+}

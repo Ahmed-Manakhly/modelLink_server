@@ -1,0 +1,44 @@
+{
+  "client_01": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGU4bDAwMDR3czYwcHZzYXZ1NnMiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2NsaWVudF8wMSIsInJvbGUiOiJDTElFTlQiLCJpYXQiOjE3ODUyMTU1MjksImV4cCI6MTc4NTIxODIyOX0.oLJQ4IlcUG3sS7EG73sSu7iqxHIBWykgx3H2WJaLOVo",
+    "userId": "cms478e8l0004ws60pvsavu6s",
+    "role": "CLIENT",
+    "email": "seed_client_01@modellink.com"
+  },
+  "client_02": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGV2ZTAwMDV3czYweWxrOHNpcGQiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2NsaWVudF8wMiIsInJvbGUiOiJDTElFTlQiLCJpYXQiOjE3ODUyMTU1MzAsImV4cCI6MTc4NTIxODIzMH0.KVDh_HcyW-QZTUegMjiJz7dySsK1Dpu2dYt7eZ3WfhQ",
+    "userId": "cms478eve0005ws60ylk8sipd",
+    "role": "CLIENT",
+    "email": "seed_client_02@modellink.com"
+  },
+  "client_03": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGZoMzAwMDZ3czYwZnNybXIycjQiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2NsaWVudF8wMyIsInJvbGUiOiJDTElFTlQiLCJpYXQiOjE3ODUyMTU1MzAsImV4cCI6MTc4NTIxODIzMH0.PJWPj6w3hbc4dIMSDL1QBkHkCdHV9iMk4kMZOgi2cJM",
+    "userId": "cms478fh30006ws60fsrmr2r4",
+    "role": "CLIENT",
+    "email": "seed_client_03@modellink.com"
+  },
+  "dev_01": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGc3bzAwMDd3czYwaGU2ZThmOWgiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2RldmVsb3Blcl8wMSIsInJvbGUiOiJERVZFTE9QRVIiLCJpYXQiOjE3ODUyMTU1MzEsImV4cCI6MTc4NTIxODIzMX0.agtl8JLI3vF0QTlEo_q-KYnHMs0WYY6IzleCYaojrPg",
+    "userId": "cms478g7o0007ws60he6e8f9h",
+    "role": "DEVELOPER",
+    "email": "seed_dev_01@modellink.com"
+  },
+  "dev_02": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGd5czAwMDh3czYwdGRwMnh1dWUiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2RldmVsb3Blcl8wMiIsInJvbGUiOiJERVZFTE9QRVIiLCJpYXQiOjE3ODUyMTU1MzIsImV4cCI6MTc4NTIxODIzMn0.iz5VyX8ppqNcCTwRDM98s27tQNn7YyorfYjYjYWRTR8",
+    "userId": "cms478gys0008ws60tdp2xuue",
+    "role": "DEVELOPER",
+    "email": "seed_dev_02@modellink.com"
+  },
+  "dev_03": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGhvZTAwMDl3czYwaGtnMWxtcWciLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2RldmVsb3Blcl8wMyIsInJvbGUiOiJERVZFTE9QRVIiLCJpYXQiOjE3ODUyMTU1MzMsImV4cCI6MTc4NTIxODIzM30.3Uh4Nu6ZUZ-ooBWeYBxzlGTrZsW3ojeFeNtm6FlLEHs",
+    "userId": "cms478hoe0009ws60hkg1lmqg",
+    "role": "DEVELOPER",
+    "email": "seed_dev_03@modellink.com"
+  },
+  "dev_04": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtczQ3OGliNjAwMGF3czYwdThzZmE2eGgiLCJvcmdfdXNlcm5hbWUiOiJzZWVkX2RldmVsb3Blcl8wNCIsInJvbGUiOiJERVZFTE9QRVIiLCJpYXQiOjE3ODUyMTU1MzQsImV4cCI6MTc4NTIxODIzNH0.Sf55ZHYLBF-dwDlwkJrhcqSRIShkDiDtKX4k1izh_50",
+    "userId": "cms478ib6000aws60u8sfa6xh",
+    "role": "DEVELOPER",
+    "email": "seed_dev_04@modellink.com"
+  }
+}

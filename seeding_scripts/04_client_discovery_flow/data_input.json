@@ -1,0 +1,94 @@
+{
+  "_comment": "MASTER REFERENCE — Read-only flow. No data is consumed. Queries are replayed on each run.",
+  "env": {
+    "API_URL": "http://localhost:8000/api",
+    "THROTTLE_MS": 200
+  },
+  "client": {
+    "id": "client_01",
+    "email": "seed_client_01@modellink.com",
+    "password": "Password123!"
+  },
+  "queries": [
+    {
+      "id": "q01",
+      "name": "Browse All Published",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": {},
+      "assert": { "minResults": 1, "statusCode": 200 }
+    },
+    {
+      "id": "q02",
+      "name": "Filter by Category: Medical Imaging",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "categoryParentSlug": "medical-imaging" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q03",
+      "name": "Filter by Tag: FDA Cleared",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "tags": "FDA Cleared" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q04",
+      "name": "Filter by Modality: MRI",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "versions.modalityRel.name": "MRI" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q05",
+      "name": "Filter by Price <= 300",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "versions.price": "300", "versions.priceRule": "lte" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q06",
+      "name": "Filter by Feature: DICOM Integration",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "versions.features.feature": "DICOM Integration" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q07",
+      "name": "Filter by Metric: Accuracy",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "versions.metrics.metric": "Accuracy" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q08",
+      "name": "Full-Text Search: Brain",
+      "method": "GET",
+      "path": "/aiModel",
+      "params": { "search": "Brain" },
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q09_cats",
+      "name": "Taxonomy: Categories",
+      "method": "GET",
+      "path": "/taxonomy/categories",
+      "params": {},
+      "assert": { "minResults": 1 }
+    },
+    {
+      "id": "q09_filters",
+      "name": "Taxonomy: All Filters",
+      "method": "GET",
+      "path": "/aiModel/filters",
+      "params": {},
+      "assert": { "hasKeys": ["categories", "modalities", "bodyParts", "tags", "features", "metrics"] }
+    }
+  ]
+}
