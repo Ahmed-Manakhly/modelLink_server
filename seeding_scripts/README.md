@@ -131,6 +131,22 @@ Or pass as env variable in the bot: `API_URL=https://... node bot.js`
 
 ---
 
+## 🚨 Execution Context: API vs Prisma (Local vs Remote)
+
+It is critical to understand *how* the different scripts interact with the backend, especially when running against a remote production server:
+
+1. **Forward Seeding (`bot.js` scripts)**
+   - **Mechanism:** Standard HTTP API calls.
+   - **Environment:** Runs flawlessly across the internet from any laptop.
+   - **Config:** Uses `API_URL`.
+
+2. **Database Reset & Cleaners (`reset.js` & `db_cleaners/*.js`)**
+   - **Mechanism:** Direct Database Connection via `PrismaClient` (e.g. `prisma.user.deleteMany()`).
+   - **Environment:** Must be run where `DATABASE_URL` is accessible. Usually, this means they **must be run locally on the VPS** (via SSH) so Prisma can reach `localhost:5432`.
+   - **Warning:** Running `node run_all.js reset` on your laptop while targeting production will fail with `Can't reach database server` because Prisma will look for a database on your laptop, not the VPS.
+
+---
+
 ## Dev Tools (manual testing)
 
 Scripts under `dev_tools/` are **not** run by `run_all.js`. Use them when testing locally.

@@ -145,19 +145,11 @@ async function createOrder(model, buyerToken) {
     };
 }
 
-async function triggerMockWebhook(order) {
-    const webhookPayload = {
-        id: `evt_seed_${Date.now()}_${order.id}`,
-        type: 'payment_intent.succeeded',
-        data: {
-            object: {
-                id: order.stripePaymentIntentId
-            }
-        }
-    };
-
-    await axios.post(`${API_URL}/orders/stripe-webhook`, webhookPayload, {
-        headers: { 'Content-Type': 'application/json' }
+async function triggerMockWebhook(order, buyerToken) {
+    // In production, the raw stripe-webhook endpoint blocks unsigned payloads for security.
+    // We use the demo-checkout endpoint to safely simulate the exact same fulfillment transaction.
+    await axios.post(`${API_URL}/orders/${order.id}/demo-checkout`, {}, {
+        headers: authHeaders(buyerToken)
     });
 }
 
@@ -248,7 +240,7 @@ async function processHappyPath(orderDef, buyerToken, devToken, model) {
     const { order, version } = await createOrder(model, buyerToken);
     console.log(`   ✅ Order created (ID: ${order.id}, status: ${order.status})`);
 
-    await triggerMockWebhook(order);
+    await triggerMockWebhook(order, buyerToken);
     order.status = 'PAID';
     console.log('   ✅ Payment webhook processed → PAID');
 
@@ -293,7 +285,7 @@ async function processDisputePath(orderDef, buyerToken, devToken, adminToken, mo
         console.log(`   ✅ Model found (ID: ${model.id})`);
         ({ order, version } = await createOrder(model, buyerToken));
         console.log(`   ✅ Order created (ID: ${order.id}, status: ${order.status})`);
-        await triggerMockWebhook(order);
+        await triggerMockWebhook(order, buyerToken);
         order.status = 'PAID';
         console.log('   ✅ Payment webhook processed → PAID');
         await assertWalletCredited(order, devToken, walletBefore);
