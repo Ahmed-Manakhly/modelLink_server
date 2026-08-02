@@ -37,7 +37,7 @@ npm test   # 121 integration tests (Mocha + Supertest)
 ## Key routes
 
 | Area | Base path |
-|------|-----------|
+| ------ | ----------- |
 | Auth / users | `/users` |
 | Models | `/aiModels` |
 | Orders | `/orders` |
@@ -52,7 +52,7 @@ See `../modelLink_planning/reference/ModelLink.postman_collection.json` for the 
 Copy `.env.example` → `.env`. Never commit `.env`.
 
 | Variable | Purpose |
-|----------|---------|
+| ---------- | --------- |
 | `DATABASE_URL` | PostgreSQL connection |
 | `MARKETPLACE_DEMO` | Skip real Stripe in development |
 | `STRIPE` | Stripe secret key (production) |
