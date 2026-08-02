@@ -57,6 +57,10 @@ if [ "$SUCCESS" = false ]; then
   echo "❌ Docker Compose failed after $MAX_RETRIES attempts. Stopping deployment."
   exit 1
 fi
+
+echo "🔄 Reloading Nginx configuration..."
+docker compose exec -T nginx nginx -s reload || true
+
 echo "✅ Production Deployment running!"
 
 echo ""
