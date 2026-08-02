@@ -62,6 +62,7 @@ process.on("unhandledRejection", (err) => {
 const allowedOrigins = getAllowedOrigins();
 
 const io = new Server(server, {
+  path: '/api/socket.io/',
   pingTimeout: 60000,
   cors: {
     origin: allowedOrigins,
