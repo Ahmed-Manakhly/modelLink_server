@@ -16,7 +16,7 @@ const REFERENCE_PATH = path.join(__dirname, 'data_reference.json');
 const FLOW01_SESSION = path.join(__dirname, '..', '01_auth_profile_flow', 'session_state.json');
 
 const reference = JSON.parse(fs.readFileSync(REFERENCE_PATH, 'utf8'));
-const API_URL = process.env.API_URL || reference.env.API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.API_URL || reference.env.API_URL || 'https://www.modellink.manakhly.tech/api';
 const THROTTLE = reference.env.THROTTLE_MS || 1000;
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -32,7 +32,7 @@ async function run() {
     for (const dev of developers) {
         console.log(`──────────────────────────────────────────────────`);
         console.log(`➡  Developer: ${dev.email}`);
-        
+
         // 1. Login
         let token, userId;
         try {
@@ -70,7 +70,7 @@ async function run() {
         // Check existing versions to determine new version number
         const existingVersions = model.versions || [];
         const newVersionCode = `2.${existingVersions.length}.0`;
-        
+
         // 3. Create a new version
         let newVersionId;
         try {
@@ -101,7 +101,7 @@ async function run() {
             await axios.post(`${API_URL}/aiModel/versions/${newVersionId}/features`, {
                 feature: `Advanced Integration for ${newVersionCode}`
             }, { headers: { Authorization: `Bearer ${token}` } });
-            
+
             await axios.post(`${API_URL}/aiModel/versions/${newVersionId}/features`, {
                 feature: `Performance boost by 15%`
             }, { headers: { Authorization: `Bearer ${token}` } });
@@ -134,7 +134,7 @@ async function run() {
 
         await sleep(THROTTLE);
     }
-    
+
     console.log('\n   🎉 Finished Model Versions Seeding Flow!\n');
 }
 

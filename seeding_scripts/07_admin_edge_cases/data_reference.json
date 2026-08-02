@@ -1,7 +1,7 @@
 {
   "_comment": "MASTER REFERENCE — Flow 07: Admin edge cases. DO NOT EDIT. Copy to data_input.json before running.",
   "env": {
-    "API_URL": "http://localhost:8000/api",
+    "API_URL": "https://www.modellink.manakhly.tech/api",
     "THROTTLE_MS": 800
   },
   "admin": {

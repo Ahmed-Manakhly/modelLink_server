@@ -1,7 +1,7 @@
 {
   "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy this to data_input.json to start a new session.",
   "env": {
-    "API_URL": "http://localhost:8000/api",
+    "API_URL": "https://www.modellink.manakhly.tech/api",
     "THROTTLE_MS": 500
   },
   "actors": {

@@ -1,10 +1,13 @@
 {
   "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new seeding session.",
   "env": {
-    "API_URL": "http://localhost:8000/api",
+    "API_URL": "https://www.modellink.manakhly.tech/api",
     "THROTTLE_MS": 800,
     "MAX_RETRIES": 2,
-    "RETRY_DELAYS_MS": [2000, 8000]
+    "RETRY_DELAYS_MS": [
+      2000,
+      8000
+    ]
   },
   "admin": {
     "email": "admin@modelLink.com",
@@ -16,9 +19,18 @@
       "slug": "computer-vision",
       "image": "computer-vision.svg",
       "subcategories": [
-        { "name": "Object Detection", "slug": "object-detection" },
-        { "name": "Image Segmentation", "slug": "image-segmentation" },
-        { "name": "Image Classification", "slug": "image-classification" }
+        {
+          "name": "Object Detection",
+          "slug": "object-detection"
+        },
+        {
+          "name": "Image Segmentation",
+          "slug": "image-segmentation"
+        },
+        {
+          "name": "Image Classification",
+          "slug": "image-classification"
+        }
       ]
     },
     {
@@ -26,9 +38,18 @@
       "slug": "nlp-text",
       "image": "nlp-text.svg",
       "subcategories": [
-        { "name": "Text Classification", "slug": "text-classification" },
-        { "name": "Named Entity Recognition", "slug": "named-entity-recognition" },
-        { "name": "Summarization", "slug": "summarization" }
+        {
+          "name": "Text Classification",
+          "slug": "text-classification"
+        },
+        {
+          "name": "Named Entity Recognition",
+          "slug": "named-entity-recognition"
+        },
+        {
+          "name": "Summarization",
+          "slug": "summarization"
+        }
       ]
     },
     {
@@ -36,9 +57,18 @@
       "slug": "generative-ai",
       "image": "generative-ai.svg",
       "subcategories": [
-        { "name": "Text Generation", "slug": "text-generation" },
-        { "name": "Image Generation", "slug": "image-generation" },
-        { "name": "Code Generation", "slug": "code-generation" }
+        {
+          "name": "Text Generation",
+          "slug": "text-generation"
+        },
+        {
+          "name": "Image Generation",
+          "slug": "image-generation"
+        },
+        {
+          "name": "Code Generation",
+          "slug": "code-generation"
+        }
       ]
     },
     {
@@ -46,9 +76,18 @@
       "slug": "audio-speech",
       "image": "audio-speech.svg",
       "subcategories": [
-        { "name": "Speech Recognition", "slug": "speech-recognition" },
-        { "name": "Speaker Identification", "slug": "speaker-identification" },
-        { "name": "Audio Classification", "slug": "audio-classification" }
+        {
+          "name": "Speech Recognition",
+          "slug": "speech-recognition"
+        },
+        {
+          "name": "Speaker Identification",
+          "slug": "speaker-identification"
+        },
+        {
+          "name": "Audio Classification",
+          "slug": "audio-classification"
+        }
       ]
     },
     {
@@ -56,9 +95,18 @@
       "slug": "tabular-predictive-ml",
       "image": "tabular-predictive-ml.svg",
       "subcategories": [
-        { "name": "Forecasting", "slug": "forecasting" },
-        { "name": "Anomaly Detection", "slug": "anomaly-detection" },
-        { "name": "Recommendation Systems", "slug": "recommendation-systems" }
+        {
+          "name": "Forecasting",
+          "slug": "forecasting"
+        },
+        {
+          "name": "Anomaly Detection",
+          "slug": "anomaly-detection"
+        },
+        {
+          "name": "Recommendation Systems",
+          "slug": "recommendation-systems"
+        }
       ]
     },
     {
@@ -66,9 +114,18 @@
       "slug": "mlops-deployment",
       "image": "mlops-deployment.svg",
       "subcategories": [
-        { "name": "Model Serving", "slug": "model-serving" },
-        { "name": "Monitoring & Drift", "slug": "monitoring-drift" },
-        { "name": "Pipeline Automation", "slug": "pipeline-automation" }
+        {
+          "name": "Model Serving",
+          "slug": "model-serving"
+        },
+        {
+          "name": "Monitoring & Drift",
+          "slug": "monitoring-drift"
+        },
+        {
+          "name": "Pipeline Automation",
+          "slug": "pipeline-automation"
+        }
       ]
     },
     {
@@ -76,9 +133,18 @@
       "slug": "medical-imaging",
       "image": "medical-imaging.svg",
       "subcategories": [
-        { "name": "X-ray Analysis", "slug": "x-ray-analysis" },
-        { "name": "MRI Interpretation", "slug": "mri-interpretation" },
-        { "name": "Ultrasound Diagnostics", "slug": "ultrasound-diagnostics" }
+        {
+          "name": "X-ray Analysis",
+          "slug": "x-ray-analysis"
+        },
+        {
+          "name": "MRI Interpretation",
+          "slug": "mri-interpretation"
+        },
+        {
+          "name": "Ultrasound Diagnostics",
+          "slug": "ultrasound-diagnostics"
+        }
       ]
     },
     {
@@ -86,9 +152,18 @@
       "slug": "clinical-decision-support",
       "image": "clinical-decision-support.svg",
       "subcategories": [
-        { "name": "Disease Prediction", "slug": "disease-prediction" },
-        { "name": "Treatment Recommendations", "slug": "treatment-recommendations" },
-        { "name": "Drug Interaction Alerts", "slug": "drug-interaction-alerts" }
+        {
+          "name": "Disease Prediction",
+          "slug": "disease-prediction"
+        },
+        {
+          "name": "Treatment Recommendations",
+          "slug": "treatment-recommendations"
+        },
+        {
+          "name": "Drug Interaction Alerts",
+          "slug": "drug-interaction-alerts"
+        }
       ]
     },
     {
@@ -96,9 +171,18 @@
       "slug": "telemedicine-remote-monitoring",
       "image": "telemedicine.svg",
       "subcategories": [
-        { "name": "Teleconsultation", "slug": "teleconsultation" },
-        { "name": "Remote Vital Signs Monitoring", "slug": "remote-vital-signs-monitoring" },
-        { "name": "Wearable Device Integration", "slug": "wearable-device-integration" }
+        {
+          "name": "Teleconsultation",
+          "slug": "teleconsultation"
+        },
+        {
+          "name": "Remote Vital Signs Monitoring",
+          "slug": "remote-vital-signs-monitoring"
+        },
+        {
+          "name": "Wearable Device Integration",
+          "slug": "wearable-device-integration"
+        }
       ]
     },
     {
@@ -106,9 +190,18 @@
       "slug": "pathology-histopathology",
       "image": "pathology.svg",
       "subcategories": [
-        { "name": "Cancer Detection", "slug": "cancer-detection" },
-        { "name": "Tissue Classification", "slug": "tissue-classification" },
-        { "name": "Digital Pathology", "slug": "digital-pathology" }
+        {
+          "name": "Cancer Detection",
+          "slug": "cancer-detection"
+        },
+        {
+          "name": "Tissue Classification",
+          "slug": "tissue-classification"
+        },
+        {
+          "name": "Digital Pathology",
+          "slug": "digital-pathology"
+        }
       ]
     },
     {
@@ -116,31 +209,91 @@
       "slug": "genomics-personalized-medicine",
       "image": "genomics.svg",
       "subcategories": [
-        { "name": "Genetic Risk Assessment", "slug": "genetic-risk-assessment" },
-        { "name": "Pharmacogenomics", "slug": "pharmacogenomics" },
-        { "name": "Precision Medicine", "slug": "precision-medicine" }
+        {
+          "name": "Genetic Risk Assessment",
+          "slug": "genetic-risk-assessment"
+        },
+        {
+          "name": "Pharmacogenomics",
+          "slug": "pharmacogenomics"
+        },
+        {
+          "name": "Precision Medicine",
+          "slug": "precision-medicine"
+        }
       ]
     }
   ],
   "modalities": [
-    { "name": "MRI", "slug": "mri" },
-    { "name": "CT", "slug": "ct" },
-    { "name": "X-RAY", "slug": "x-ray" },
-    { "name": "Ultrasound", "slug": "ultrasound" },
-    { "name": "PET", "slug": "pet" },
-    { "name": "Text", "slug": "text" },
-    { "name": "Audio", "slug": "audio" },
-    { "name": "Tabular", "slug": "tabular" },
-    { "name": "Video", "slug": "video" }
+    {
+      "name": "MRI",
+      "slug": "mri"
+    },
+    {
+      "name": "CT",
+      "slug": "ct"
+    },
+    {
+      "name": "X-RAY",
+      "slug": "x-ray"
+    },
+    {
+      "name": "Ultrasound",
+      "slug": "ultrasound"
+    },
+    {
+      "name": "PET",
+      "slug": "pet"
+    },
+    {
+      "name": "Text",
+      "slug": "text"
+    },
+    {
+      "name": "Audio",
+      "slug": "audio"
+    },
+    {
+      "name": "Tabular",
+      "slug": "tabular"
+    },
+    {
+      "name": "Video",
+      "slug": "video"
+    }
   ],
   "bodyParts": [
-    { "name": "Brain", "slug": "brain" },
-    { "name": "Chest", "slug": "chest" },
-    { "name": "Lungs", "slug": "lungs" },
-    { "name": "Heart", "slug": "heart" },
-    { "name": "Liver", "slug": "liver" },
-    { "name": "Kidney", "slug": "kidney" },
-    { "name": "Full Body", "slug": "full-body" },
-    { "name": "N/A (Non-Medical)", "slug": "na-non-medical" }
+    {
+      "name": "Brain",
+      "slug": "brain"
+    },
+    {
+      "name": "Chest",
+      "slug": "chest"
+    },
+    {
+      "name": "Lungs",
+      "slug": "lungs"
+    },
+    {
+      "name": "Heart",
+      "slug": "heart"
+    },
+    {
+      "name": "Liver",
+      "slug": "liver"
+    },
+    {
+      "name": "Kidney",
+      "slug": "kidney"
+    },
+    {
+      "name": "Full Body",
+      "slug": "full-body"
+    },
+    {
+      "name": "N/A (Non-Medical)",
+      "slug": "na-non-medical"
+    }
   ]
 }

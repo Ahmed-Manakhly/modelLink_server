@@ -1,7 +1,7 @@
 {
   "_comment": "MASTER REFERENCE — DO NOT EDIT.",
   "env": {
-    "API_URL": "http://localhost:8000/api"
+    "API_URL": "https://www.modellink.manakhly.tech/api"
   },
   "developers": []
 }
