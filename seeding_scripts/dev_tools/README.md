@@ -16,7 +16,7 @@ This logs in as admin and approves **every** pending verification request.
 ### Options
 
 | Flag / env | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | `--email=you@example.com` | Approve only that developer's pending request (with status diagnostics if none found) |
 | `--list` | Show all PENDING verifications in the admin queue |
 | `--dry-run` | List matches without approving |
@@ -29,7 +29,7 @@ This logs in as admin and approves **every** pending verification request.
 The script now looks up your account directly and prints why nothing was approved:
 
 | Message | What to do |
-|---------|------------|
+| --------- | ------------ |
 | No user found | Register with that email first |
 | Role is CLIENT | Sign up as **DEVELOPER** |
 | No verification record | Profile Settings → upload doc → Submit Verification |
@@ -46,7 +46,7 @@ node seeding_scripts/dev_tools/approve_pending_verifications.js --list
 ### vs Flow 02b (`admin_approve.js`)
 
 | Script | Scope |
-|--------|--------|
+| -------- | -------- |
 | `dev_tools/approve_pending_verifications.js` | **All** pending verifications (for manual dev testing) |
 | `02_developer_verification_flow/admin_approve.js` | **Seed devs only** (`seed_dev_01/02/03`) — safe for full seed runs |
 
