@@ -87,8 +87,6 @@ services:
   backend:
     container_name: modellink_backend
     build: .
-    user: modelLink
-    command: sh -c "chown -R modelLink:modelLink /public && npm start"
     env_file:
       - .env
     environment:
