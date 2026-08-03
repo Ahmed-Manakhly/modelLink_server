@@ -13,13 +13,46 @@ node seeding_scripts/dev_tools/approve_pending_verifications.js
 
 This logs in as admin and approves **every** pending verification request.
 
-### Options
+### Command Options
 
-| Flag / env | Purpose |
+Instead of a generic run, you can pass specific flags to change how the script operates:
+
+#### 1. The Default Run
+
+```bash
+node seeding_scripts/dev_tools/approve_pending_verifications.js
+```
+
+**What it does:** It logs in as the Admin in the background, finds **ALL** users who currently have a "PENDING" verification status, and approves every single one of them at once.
+
+#### 2. The Targeted Run (`--email`)
+
+```bash
+node seeding_scripts/dev_tools/approve_pending_verifications.js --email=you@example.com
+```
+
+**What it does:** If you have multiple pending developers but only want to approve one specific account (for instance, the one you are currently testing), you pass the `--email` flag. It will ignore everyone else and only approve the account matching that exact email.
+
+#### 3. The List Run (`--list`)
+
+```bash
+node seeding_scripts/dev_tools/approve_pending_verifications.js --list
+```
+
+**What it does:** This is a "read-only" command. It logs in and fetches all the pending verifications, then simply prints their emails and IDs to your terminal so you can see who is waiting. **It does not approve anyone.**
+
+#### 4. The Dry Run (`--dry-run`)
+
+```bash
+node seeding_scripts/dev_tools/approve_pending_verifications.js --dry-run
+```
+
+**What it does:** This is a safe "practice" run. It runs through the entire script, finds the pending accounts, and prints out messages like *"Would approve user X"* to the terminal, but it stops right before actually making the API calls to approve them. It’s useful to double-check what the script *is going to do* before you actually let it do it!
+
+### Environment Variables
+
+| Env Variable | Purpose |
 | ------------ | --------- |
-| `--email=you@example.com` | Approve only that developer's pending request (with status diagnostics if none found) |
-| `--list` | Show all PENDING verifications in the admin queue |
-| `--dry-run` | List matches without approving |
 | `API_URL` | Default: `http://localhost:8000/api` |
 | `ADMIN_EMAIL` | Default: `admin@modelLink.com` |
 | `ADMIN_PASSWORD` | Default from taxonomy `data_reference.json` |
