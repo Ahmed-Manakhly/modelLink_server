@@ -1,4 +1,5 @@
 # ModelLink Seeding System
+
 ## Architecture Reference & Executor Briefing
 
 ---
@@ -16,7 +17,7 @@ bot system** that simulates real user journeys from a single command.
 
 ## System Architecture
 
-```
+```text
 seeding_scripts/
 │
 ├── README.md                          ← You are here. Master briefing doc.
@@ -71,6 +72,7 @@ seeding_scripts/
 Every flow uses two data files. This pattern is critical:
 
 ### `data_reference.json` — The Master Copy
+
 - **NEVER deleted or modified by any bot script**
 - Contains the complete, canonical definition of all actors and data for that flow
 - Treated like a `seed.sql` — your ground truth
@@ -79,6 +81,7 @@ Every flow uses two data files. This pattern is critical:
   2. Run the bot
 
 ### `data_input.json` — The Active Session Queue
+
 - **CONSUMED by the bot** — entries are removed upon successful processing
 - If the bot crashes mid-run, only the remaining (failed) entries stay in the file
 - Re-running the bot resumes from where it left off automatically
@@ -89,7 +92,7 @@ Every flow uses two data files. This pattern is critical:
 
 ## Chronological Flow Order (Never Skip Steps)
 
-```
+```text
 [FLOW 01] Auth & Profile Setup
     ↓  (actors created)
 [FLOW 02] Developer Verification & Wallet
@@ -119,6 +122,7 @@ The `env.API_URL` inside each `data_reference.json` is the single config point:
 ```
 
 Switch environments by editing `data_input.json` (never `data_reference.json`):
+
 ```json
 {
   "env": {
@@ -142,8 +146,27 @@ It is critical to understand *how* the different scripts interact with the backe
 
 2. **Database Reset & Cleaners (`reset.js` & `db_cleaners/*.js`)**
    - **Mechanism:** Direct Database Connection via `PrismaClient` (e.g. `prisma.user.deleteMany()`).
-   - **Environment:** Must be run where `DATABASE_URL` is accessible. Usually, this means they **must be run locally on the VPS** (via SSH) so Prisma can reach `localhost:5432`.
-   - **Warning:** Running `node run_all.js reset` on your laptop while targeting production will fail with `Can't reach database server` because Prisma will look for a database on your laptop, not the VPS.
+   - **Environment:** Must be run where `DATABASE_URL` is accessible. For production/VPS deployments using Docker, **you must run these commands inside the backend container** where Node.js and Prisma are installed.
+   - **Warning:** Running `node run_all.js reset` on your laptop while targeting production will fail with `Can't reach database server`. Running it directly on the VPS host (without Docker) will fail with `node: command not found`.
+
+### Running on VPS / Production (Docker)
+
+If your app is deployed using Docker on a VPS, you cannot run `node` directly on the host machine. You must use `docker exec` to run the commands inside the `modellink_backend` container.
+
+**1. To completely clean the database:**
+
+```bash
+docker exec -it modellink_backend node seeding_scripts/db_cleaners/clean_all.js --confirm
+```
+
+**2. To run the full reset and seeding engine:**
+
+```bash
+docker exec -it modellink_backend node seeding_scripts/run_all.js reset
+docker exec -it modellink_backend node seeding_scripts/run_all.js
+```
+
+*(Note: Forward seeding can technically be run from your local machine targeting production via `API_URL`, but cleaning/resetting MUST be done via SSH on the VPS using these Docker commands since they require direct Prisma DB access).*
 
 ---
 
@@ -165,18 +188,21 @@ See `dev_tools/README.md` for full options. Flow 02b (`admin_approve.js`) only a
 ## Reset Strategy Per Flow
 
 Each flow has a `reset.js` that:
+
 1. Identifies records by the actors defined in `data_input.json`
 2. Deletes **only those records** — does not wipe the full DB
 3. Respects Prisma's cascade order (children before parents)
 4. Copies `data_reference.json` → `data_input.json` to reset the queue
 
 Run a specific flow reset:
+
 ```bash
 node seeding_scripts/01_auth_profile_flow/reset.js
 node seeding_scripts/03_model_publishing_flow/reset.js
 ```
 
 Run a full system reset (all flows, in reverse order):
+
 ```bash
 node seeding_scripts/05_order_transaction_flow/reset.js
 node seeding_scripts/03_model_publishing_flow/reset.js
@@ -204,7 +230,7 @@ When implementing each `bot.js`, follow this contract:
 When a flow fails, use this table to determine where the bug is:
 
 | Symptom | Likely Location |
-|---|---|
+| --- | --- |
 | Flow 01 fails at registration | Backend `auth.controller.js` or DB constraint |
 | Flow 01 succeeds but JWT invalid | Backend `auth.middleware.js` or token config |
 | Flow 02 stuck at PENDING forever | `submitVerification` setTimeout or Prisma transaction |

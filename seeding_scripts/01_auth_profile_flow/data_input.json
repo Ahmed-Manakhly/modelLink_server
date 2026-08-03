@@ -1,6 +1,113 @@
 {
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy this to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "https://www.modellink.manakhly.tech/api",
+    "THROTTLE_MS": 500
+  },
   "actors": {
-    "clients": [],
-    "developers": []
+    "clients": [
+      {
+        "id": "client_01",
+        "email": "seed_client_01@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_client_01",
+        "role": "CLIENT",
+        "profile": {
+          "first_name": "Alex",
+          "last_name": "Johnson",
+          "country": "US"
+        }
+      },
+      {
+        "id": "client_02",
+        "email": "seed_client_02@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_client_02",
+        "role": "CLIENT",
+        "profile": {
+          "first_name": "Priya",
+          "last_name": "Sharma",
+          "country": "IN"
+        }
+      },
+      {
+        "id": "client_03",
+        "email": "seed_client_03@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_client_03",
+        "role": "CLIENT",
+        "profile": {
+          "first_name": "James",
+          "last_name": "O'Brien",
+          "country": "CA"
+        }
+      }
+    ],
+    "developers": [
+      {
+        "id": "dev_01",
+        "email": "seed_dev_01@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_developer_01",
+        "org_name": "MedAI Research Labs",
+        "role": "DEVELOPER",
+        "profile": {
+          "first_name": "Sarah",
+          "last_name": "Chen",
+          "country": "US",
+          "org_desc": "Pioneering AI-driven diagnostics for radiology and pathology workflows.",
+          "org_phone": "+1-555-0101",
+          "logoFile": "data/USER_IMAGES/user_1.svg"
+        }
+      },
+      {
+        "id": "dev_02",
+        "email": "seed_dev_02@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_developer_02",
+        "org_name": "ClinicalAI Systems",
+        "role": "DEVELOPER",
+        "profile": {
+          "first_name": "Marcus",
+          "last_name": "Webb",
+          "country": "DE",
+          "org_desc": "Building decision support tools for hospital networks globally.",
+          "org_phone": "+49-30-555-0202",
+          "logoFile": "data/USER_IMAGES/user_2.svg"
+        }
+      },
+      {
+        "id": "dev_03",
+        "email": "seed_dev_03@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_developer_03",
+        "org_name": "GenomeForge AI",
+        "role": "DEVELOPER",
+        "profile": {
+          "first_name": "Aisha",
+          "last_name": "Okonkwo",
+          "country": "GB",
+          "org_desc": "Genomics and precision medicine AI models for clinical research.",
+          "org_phone": "+44-20-555-0303",
+          "logoFile": "data/USER_IMAGES/user_3.svg"
+        }
+      },
+      {
+        "id": "dev_04",
+        "email": "seed_dev_04@modellink.com",
+        "password": "Password123!",
+        "org_username": "seed_developer_04",
+        "org_name": "Visionary Health Tech",
+        "role": "DEVELOPER",
+        "profile": {
+          "first_name": "David",
+          "last_name": "Kim",
+          "country": "CA",
+          "org_desc": "Advanced medical AI models for telemedicine and diagnostics.",
+          "org_phone": "+1-416-555-0404",
+          "logoFile": "data/USER_IMAGES/user_4.svg"
+        }
+      }
+    ]
   }
 }

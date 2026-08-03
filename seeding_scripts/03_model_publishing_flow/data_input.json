@@ -1,4 +1,14 @@
 {
+  "_comment": "MASTER REFERENCE — DO NOT EDIT. Copy to data_input.json to start a new session.",
+  "env": {
+    "API_URL": "https://www.modellink.manakhly.tech/api",
+    "THROTTLE_MS": 1000,
+    "MAX_RETRIES": 2,
+    "RETRY_DELAYS_MS": [
+      3000,
+      10000
+    ]
+  },
   "developers": [
     {
       "id": "dev_01",
@@ -21,5 +31,2075 @@
       "password": "Password123!"
     }
   ],
-  "models": []
+  "models": [
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_001.jpeg",
+        "gallery": [
+          "model_img_002.jpeg",
+          "model_img_003.png",
+          "model_img_043.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ChestScan Classifier",
+        "desc": "Chest X-ray classification model for pneumonia, pleural effusion, and cardiomegaly detection. Trained on 100k+ labeled radiographs.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "Edge Deployment",
+          "High Accuracy",
+          "Fast",
+          "Cloud Processing",
+          "Research Only"
+        ],
+        "version": "1.0.0",
+        "price": 149,
+        "deliveryTime": 2,
+        "modality": "MRI",
+        "bodyPart": "Brain",
+        "indications": "Screening for acute chest pathology in emergency and outpatient settings.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 94
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 91
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/chestscan"
+          }
+        ],
+        "subcategory": "Object Detection"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_002.jpeg",
+        "gallery": [
+          "model_img_005.jpeg",
+          "model_img_006.jpeg",
+          "model_img_052.jpeg"
+        ]
+      },
+      "data": {
+        "title": "RetinAI Grader",
+        "desc": "Automated diabetic retinopathy severity grading from fundus photographs. Returns ETDRS grade with heatmap overlay.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "Edge Deployment",
+          "Research Only",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 199,
+        "deliveryTime": 3,
+        "modality": "CT",
+        "bodyPart": "Chest",
+        "indications": "Annual diabetic eye screening programs.",
+        "fda": false,
+        "features": [
+          "Batch Processing",
+          "Explainability Heatmaps",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 97
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 93
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/retinai"
+          }
+        ],
+        "subcategory": "Image Segmentation"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_003.png",
+        "gallery": [
+          "model_img_008.jpeg",
+          "model_img_009.png",
+          "model_img_055.jpeg"
+        ]
+      },
+      "data": {
+        "title": "SkinLesion Detector",
+        "desc": "Dermoscopy image segmentation and classification for melanoma vs benign lesion differentiation.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "Real-time",
+          "FDA Cleared",
+          "Fast",
+          "Cloud Processing",
+          "Edge Deployment"
+        ],
+        "version": "1.0.0",
+        "price": 89,
+        "deliveryTime": 2,
+        "modality": "X-RAY",
+        "bodyPart": "Lungs",
+        "indications": "Point-of-care dermoscopy screening in dermatology clinics.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 91
+          },
+          {
+            "metric": "F1 Score",
+            "value": 88
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/skinlesion"
+          }
+        ],
+        "subcategory": "Image Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_004.jpeg",
+        "gallery": [
+          "model_img_011.jpg",
+          "model_img_012.jpg",
+          "model_img_013.jpg",
+          "model_img_061.jpeg"
+        ]
+      },
+      "data": {
+        "title": "FractureDetect Pro",
+        "desc": "Orthopedic fracture localization and classification from plain X-rays. Supports long bones, wrist, and ankle.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "REST API Access",
+          "Cloud Processing",
+          "Research Only",
+          "HIPAA Compliant"
+        ],
+        "version": "1.0.0",
+        "price": 129,
+        "deliveryTime": 2,
+        "modality": "Ultrasound",
+        "bodyPart": "Heart",
+        "indications": "Emergency department triage and urgent care fracture screening.",
+        "fda": true,
+        "fdaUrl": "https://fda.gov/seed-fracture-detect-510k",
+        "features": [
+          "DICOM Integration",
+          "REST API Access",
+          "Sub-second inference"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 95
+          },
+          {
+            "metric": "Specificity",
+            "value": 93
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/fracture"
+          }
+        ],
+        "subcategory": "Text Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_005.jpeg",
+        "gallery": [
+          "model_img_014.jpeg",
+          "model_img_015.jpeg",
+          "model_img_064.jpeg"
+        ]
+      },
+      "data": {
+        "title": "BrainTumor Delineator",
+        "desc": "MRI brain tumor boundary delineation using a 3D U-Net architecture. Returns voxel-level segmentation mask.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "FDA Cleared",
+          "High Accuracy",
+          "REST API Access",
+          "HIPAA Compliant"
+        ],
+        "version": "1.0.0",
+        "price": 299,
+        "deliveryTime": 5,
+        "modality": "PET",
+        "bodyPart": "Liver",
+        "indications": "Preoperative tumor volume measurement and treatment planning.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Cloud Processing",
+          "3D Volume Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Dice Score",
+            "value": 89
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 87
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/braintumor"
+          }
+        ],
+        "subcategory": "Named Entity Recognition"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_006.jpeg",
+        "gallery": [
+          "model_img_017.webp",
+          "model_img_018.webp",
+          "model_img_019.png",
+          "model_img_067.jpeg"
+        ]
+      },
+      "data": {
+        "title": "PolyScope AI",
+        "desc": "Real-time colonoscopy polyp detection model. Processes live video stream and flags polyp regions with bounding boxes.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "Fast",
+          "Cloud Processing",
+          "REST API Access",
+          "High Accuracy",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 249,
+        "deliveryTime": 3,
+        "modality": "Text",
+        "bodyPart": "Kidney",
+        "indications": "Assisted colonoscopy polyp detection for gastroenterology.",
+        "fda": false,
+        "features": [
+          "Real-time Inference",
+          "REST API Access",
+          "Bounding Box Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 92
+          },
+          {
+            "metric": "Miss Rate",
+            "value": 8
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/polyscope"
+          }
+        ],
+        "subcategory": "Summarization"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_007.png",
+        "gallery": [
+          "model_img_020.jpeg",
+          "model_img_021.jpeg",
+          "model_img_022.jpeg",
+          "model_img_070.jpeg"
+        ]
+      },
+      "data": {
+        "title": "MammoScreen Pro",
+        "desc": "Mammography mass detection and BI-RADS category scoring. Provides finding coordinates and confidence scores.",
+        "status": "PUBLISHED",
+        "category": "Generative AI",
+        "tags": [
+          "Fast",
+          "Real-time",
+          "Cloud Processing"
+        ],
+        "version": "1.0.0",
+        "price": 179,
+        "deliveryTime": 3,
+        "modality": "Audio",
+        "bodyPart": "Full Body",
+        "indications": "Screening mammography programs and recall reduction.",
+        "fda": true,
+        "fdaUrl": "https://fda.gov/seed-mammoscreen-510k",
+        "features": [
+          "DICOM Integration",
+          "BI-RADS Scoring",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 88
+          },
+          {
+            "metric": "Specificity",
+            "value": 90
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/mammoscreen"
+          }
+        ],
+        "subcategory": "Text Generation"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_008.jpeg",
+        "gallery": [
+          "model_img_023.jpeg",
+          "model_img_024.jpeg",
+          "model_img_025.jpeg",
+          "model_img_085.jpeg"
+        ]
+      },
+      "data": {
+        "title": "EchoFraction Estimator",
+        "desc": "Echocardiogram ejection fraction estimation from 2D apical four-chamber views. No manual tracing required.",
+        "status": "PUBLISHED",
+        "category": "Generative AI",
+        "tags": [
+          "REST API Access",
+          "High Accuracy",
+          "Batch Processing"
+        ],
+        "version": "1.0.0",
+        "price": 159,
+        "deliveryTime": 2,
+        "modality": "Tabular",
+        "bodyPart": "N/A (Non-Medical)",
+        "indications": "Rapid EF assessment in cardiology and ICU settings.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Sub-second inference",
+          "DICOM Integration"
+        ],
+        "metrics": [
+          {
+            "metric": "MAE (EF%)",
+            "value": 4
+          },
+          {
+            "metric": "Correlation",
+            "value": 95
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/echo"
+          }
+        ],
+        "subcategory": "Image Generation"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_009.png",
+        "gallery": [
+          "model_img_026.jpeg",
+          "model_img_027.jpeg",
+          "model_img_028.jpg",
+          "model_img_088.jpg"
+        ]
+      },
+      "data": {
+        "title": "NoduleTracker CT",
+        "desc": "Lung nodule detection and longitudinal growth tracking from chest CT series. Supports Lung-RADS output.",
+        "status": "PUBLISHED",
+        "category": "Generative AI",
+        "tags": [
+          "Batch Processing",
+          "High Accuracy",
+          "Real-time",
+          "Edge Deployment",
+          "HIPAA Compliant"
+        ],
+        "version": "1.0.0",
+        "price": 219,
+        "deliveryTime": 4,
+        "modality": "Video",
+        "bodyPart": "Brain",
+        "indications": "Lung cancer screening programs and incidental nodule follow-up.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Cloud Processing",
+          "Lung-RADS Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 96
+          },
+          {
+            "metric": "False Positive Rate",
+            "value": 5
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/nodule"
+          }
+        ],
+        "subcategory": "Code Generation"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_010.jpg",
+        "gallery": [
+          "model_img_029.webp",
+          "model_img_030.webp",
+          "model_img_031.jpg"
+        ]
+      },
+      "data": {
+        "title": "OphthAI Screener",
+        "desc": "Diabetic macular edema grading from color fundus images. Returns DME grade and referral recommendation.",
+        "status": "PUBLISHED",
+        "category": "Audio / Speech",
+        "tags": [
+          "Edge Deployment",
+          "Low Latency",
+          "HIPAA Compliant",
+          "Batch Processing"
+        ],
+        "version": "1.0.0",
+        "price": 99,
+        "deliveryTime": 2,
+        "modality": "MRI",
+        "bodyPart": "Chest",
+        "indications": "Community diabetic eye screening, optometry referral triage.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 90
+          },
+          {
+            "metric": "Specificity",
+            "value": 88
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/opth"
+          }
+        ],
+        "subcategory": "Speech Recognition"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_011.jpg",
+        "gallery": [
+          "model_img_032.jpg",
+          "model_img_033.webp"
+        ]
+      },
+      "data": {
+        "title": "ClinicalNER Pro",
+        "desc": "Medical named entity recognition from clinical notes. Extracts diagnoses, medications, procedures, and lab values.",
+        "status": "PUBLISHED",
+        "category": "Audio / Speech",
+        "tags": [
+          "Fast",
+          "Edge Deployment",
+          "High Accuracy",
+          "Low Latency"
+        ],
+        "version": "1.0.0",
+        "price": 79,
+        "deliveryTime": 2,
+        "modality": "CT",
+        "bodyPart": "Lungs",
+        "indications": "EHR data enrichment, clinical coding support, and NLP pipelines.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Batch Processing",
+          "JSON Output"
+        ],
+        "metrics": [
+          {
+            "metric": "F1 Score",
+            "value": 92
+          },
+          {
+            "metric": "Precision",
+            "value": 94
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/ner"
+          }
+        ],
+        "subcategory": "Speaker Identification"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_012.jpg",
+        "gallery": [
+          "model_img_035.jpeg",
+          "model_img_036.jpeg",
+          "model_img_037.jpeg"
+        ]
+      },
+      "data": {
+        "title": "DischargeSum AI",
+        "desc": "Automated discharge summary generation from structured EHR data. Produces physician-ready narrative drafts.",
+        "status": "PUBLISHED",
+        "category": "Audio / Speech",
+        "tags": [
+          "Research Only",
+          "HIPAA Compliant",
+          "REST API Access",
+          "Cloud Processing",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 119,
+        "deliveryTime": 3,
+        "modality": "X-RAY",
+        "bodyPart": "Heart",
+        "indications": "Post-discharge documentation automation for inpatient and surgical units.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "REST API Access",
+          "Template Customization"
+        ],
+        "metrics": [
+          {
+            "metric": "ROUGE-L",
+            "value": 71
+          },
+          {
+            "metric": "Physician Acceptance Rate",
+            "value": 84
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/discharge"
+          }
+        ],
+        "subcategory": "Audio Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_013.jpg",
+        "gallery": [
+          "model_img_038.jpeg",
+          "model_img_039.jpeg",
+          "model_img_040.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ICD-10 Coder",
+        "desc": "ICD-10-CM code suggestion from free-text clinical narratives. Returns ranked code list with confidence scores.",
+        "status": "PUBLISHED",
+        "category": "Tabular / Predictive ML",
+        "tags": [
+          "Real-time",
+          "Cloud Processing",
+          "Edge Deployment"
+        ],
+        "version": "1.0.0",
+        "price": 139,
+        "deliveryTime": 2,
+        "modality": "Ultrasound",
+        "bodyPart": "Liver",
+        "indications": "Medical billing, coding audit, and clinical documentation improvement.",
+        "fda": false,
+        "features": [
+          "Batch Processing",
+          "REST API Access",
+          "Confidence Scoring"
+        ],
+        "metrics": [
+          {
+            "metric": "Top-1 Accuracy",
+            "value": 82
+          },
+          {
+            "metric": "Top-5 Accuracy",
+            "value": 95
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/icd10"
+          }
+        ],
+        "subcategory": "Forecasting"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_014.jpeg",
+        "gallery": [
+          "model_img_041.jpeg",
+          "model_img_042.jpeg"
+        ]
+      },
+      "data": {
+        "title": "SentimentRx Analyzer",
+        "desc": "Patient feedback sentiment classification with urgency scoring. Flags negative experiences requiring immediate follow-up.",
+        "status": "PUBLISHED",
+        "category": "Tabular / Predictive ML",
+        "tags": [
+          "HIPAA Compliant",
+          "Fast",
+          "High Accuracy",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 59,
+        "deliveryTime": 2,
+        "modality": "PET",
+        "bodyPart": "Kidney",
+        "indications": "Patient experience programs, complaint triage, and quality improvement.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "REST API Access",
+          "Sub-second inference"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 91
+          },
+          {
+            "metric": "F1 Score",
+            "value": 89
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/sentiment"
+          }
+        ],
+        "subcategory": "Anomaly Detection"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_015.jpeg",
+        "gallery": [
+          "model_img_044.jpeg",
+          "model_img_045.jpeg",
+          "model_img_046.jpeg"
+        ]
+      },
+      "data": {
+        "title": "RadReport Generator",
+        "desc": "Structured radiology report generation from a list of radiological findings. Produces RSNA-format narrative output.",
+        "status": "PUBLISHED",
+        "category": "Tabular / Predictive ML",
+        "tags": [
+          "Fast",
+          "Cloud Processing",
+          "Edge Deployment"
+        ],
+        "version": "1.0.0",
+        "price": 189,
+        "deliveryTime": 3,
+        "modality": "Text",
+        "bodyPart": "Full Body",
+        "indications": "Radiology reporting automation and structured data extraction.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "REST API Access",
+          "RSNA Format Output"
+        ],
+        "metrics": [
+          {
+            "metric": "ROUGE-L",
+            "value": 76
+          },
+          {
+            "metric": "Clinical Accuracy",
+            "value": 90
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/radreport"
+          }
+        ],
+        "subcategory": "Recommendation Systems"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_016.jpg",
+        "gallery": [
+          "model_img_047.jpeg",
+          "model_img_048.jpeg",
+          "model_img_049.jpeg"
+        ]
+      },
+      "data": {
+        "title": "TriageText Classifier",
+        "desc": "ED triage note severity classification into ESI levels 1–5. Assists with rapid patient acuity assessment.",
+        "status": "PUBLISHED",
+        "category": "MLOps & Deployment",
+        "tags": [
+          "REST API Access",
+          "Cloud Processing",
+          "Low Latency"
+        ],
+        "version": "1.0.0",
+        "price": 99,
+        "deliveryTime": 2,
+        "modality": "Audio",
+        "bodyPart": "N/A (Non-Medical)",
+        "indications": "Emergency department triage decision support.",
+        "fda": false,
+        "features": [
+          "Real-time Inference",
+          "REST API Access",
+          "Sub-second inference"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 87
+          },
+          {
+            "metric": "Agreement with Triage Nurse",
+            "value": 85
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/triage"
+          }
+        ],
+        "subcategory": "Model Serving"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_017.webp",
+        "gallery": [
+          "model_img_050.jpeg",
+          "model_img_051.jpeg"
+        ]
+      },
+      "data": {
+        "title": "DrugInteract Extractor",
+        "desc": "Drug-drug interaction mention extraction from prescription text and clinical notes. Classifies interaction severity.",
+        "status": "PUBLISHED",
+        "category": "MLOps & Deployment",
+        "tags": [
+          "REST API Access",
+          "Cloud Processing",
+          "Real-time",
+          "Edge Deployment",
+          "Research Only"
+        ],
+        "version": "1.0.0",
+        "price": 109,
+        "deliveryTime": 2,
+        "modality": "Tabular",
+        "bodyPart": "Brain",
+        "indications": "Medication reconciliation, pharmacy review, and e-prescribing safety checks.",
+        "fda": true,
+        "fdaUrl": "https://fda.gov/seed-druginteract-510k",
+        "features": [
+          "REST API Access",
+          "Severity Classification",
+          "Batch Processing"
+        ],
+        "metrics": [
+          {
+            "metric": "Precision",
+            "value": 93
+          },
+          {
+            "metric": "Recall",
+            "value": 90
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/druginteract"
+          }
+        ],
+        "subcategory": "Monitoring & Drift"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_018.webp",
+        "gallery": [
+          "model_img_053.jpeg",
+          "model_img_054.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ConsentDoc Simplifier",
+        "desc": "Transforms complex patient consent documents into plain-language summaries at a 6th-grade reading level.",
+        "status": "PUBLISHED",
+        "category": "MLOps & Deployment",
+        "tags": [
+          "HIPAA Compliant",
+          "Edge Deployment",
+          "FDA Cleared",
+          "Fast"
+        ],
+        "version": "1.0.0",
+        "price": 49,
+        "deliveryTime": 2,
+        "modality": "Video",
+        "bodyPart": "Chest",
+        "indications": "Patient education, informed consent process support.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "REST API Access",
+          "Reading Level Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Flesch-Kincaid Grade",
+            "value": 6
+          },
+          {
+            "metric": "Patient Comprehension Score",
+            "value": 88
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/consent"
+          }
+        ],
+        "subcategory": "Pipeline Automation"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_019.png",
+        "gallery": [
+          "model_img_056.jpeg",
+          "model_img_057.jpeg",
+          "model_img_058.jpeg"
+        ]
+      },
+      "data": {
+        "title": "LabFlag Interpreter",
+        "desc": "NLP-based lab result abnormality interpretation. Extracts values, flags out-of-range results, and generates clinical context.",
+        "status": "PUBLISHED",
+        "category": "Medical Imaging",
+        "tags": [
+          "Research Only",
+          "Fast",
+          "Low Latency"
+        ],
+        "version": "1.0.0",
+        "price": 89,
+        "deliveryTime": 2,
+        "modality": "MRI",
+        "bodyPart": "Lungs",
+        "indications": "Lab result review support in primary care and hospitalist medicine.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Cloud Processing",
+          "Structured JSON Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 95
+          },
+          {
+            "metric": "False Negative Rate",
+            "value": 3
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/labflag"
+          }
+        ],
+        "subcategory": "X-ray Analysis"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_020.jpeg",
+        "gallery": [
+          "model_img_059.jpeg",
+          "model_img_060.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ClinicalQA Responder",
+        "desc": "Medical question answering system grounded in clinical literature. Returns answers with source citations.",
+        "status": "PUBLISHED",
+        "category": "Medical Imaging",
+        "tags": [
+          "High Accuracy",
+          "Fast",
+          "Batch Processing",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 159,
+        "deliveryTime": 3,
+        "modality": "CT",
+        "bodyPart": "Heart",
+        "indications": "Clinical decision support, medical education, and literature search augmentation.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "Citation Support",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Exact Match",
+            "value": 71
+          },
+          {
+            "metric": "F1 Score",
+            "value": 83
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.clinicai-seed.com/v1/qa"
+          }
+        ],
+        "subcategory": "MRI Interpretation"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_021.jpeg",
+        "gallery": [
+          "model_img_062.jpeg",
+          "model_img_063.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ReadmissionRisk Predictor",
+        "desc": "30-day hospital readmission risk scoring from structured EHR features at discharge. Returns risk tier and contributing factors.",
+        "status": "PUBLISHED",
+        "category": "Medical Imaging",
+        "tags": [
+          "Real-time",
+          "Cloud Processing",
+          "Research Only",
+          "REST API Access"
+        ],
+        "version": "1.0.0",
+        "price": 189,
+        "deliveryTime": 3,
+        "modality": "X-RAY",
+        "bodyPart": "Liver",
+        "indications": "Discharge planning and care transition management.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Cloud Processing",
+          "SHAP Explanations"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 81
+          },
+          {
+            "metric": "Precision at 10%",
+            "value": 42
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/readmission"
+          }
+        ],
+        "subcategory": "Ultrasound Diagnostics"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_022.jpeg",
+        "gallery": [
+          "model_img_065.jpeg",
+          "model_img_066.jpeg"
+        ]
+      },
+      "data": {
+        "title": "SepsisAlert Engine",
+        "desc": "Early sepsis onset prediction from continuous vital signs and lab values. Fires alerts up to 6 hours before clinical recognition.",
+        "status": "PUBLISHED",
+        "category": "Clinical Decision Support",
+        "tags": [
+          "Cloud Processing",
+          "Batch Processing",
+          "Low Latency"
+        ],
+        "version": "1.0.0",
+        "price": 249,
+        "deliveryTime": 4,
+        "modality": "Ultrasound",
+        "bodyPart": "Kidney",
+        "indications": "ICU and general ward sepsis early warning.",
+        "fda": false,
+        "features": [
+          "Real-time Inference",
+          "REST API Access",
+          "HL7 FHIR Compatible"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity at 6h",
+            "value": 85
+          },
+          {
+            "metric": "Specificity",
+            "value": 91
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/sepsis"
+          }
+        ],
+        "subcategory": "Disease Prediction"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_023.jpeg",
+        "gallery": [
+          "model_img_068.jpeg",
+          "model_img_069.jpeg"
+        ]
+      },
+      "data": {
+        "title": "DiabetesDx Predictor",
+        "desc": "Type-2 diabetes onset prediction from routine lab values (HbA1c, fasting glucose, BMI, lipid panel).",
+        "status": "PUBLISHED",
+        "category": "Clinical Decision Support",
+        "tags": [
+          "Research Only",
+          "Real-time",
+          "Edge Deployment"
+        ],
+        "version": "1.0.0",
+        "price": 129,
+        "deliveryTime": 2,
+        "modality": "PET",
+        "bodyPart": "Full Body",
+        "indications": "Primary care diabetes screening and prevention programs.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Sub-second inference",
+          "Risk Score Output"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 88
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 82
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/diabetes"
+          }
+        ],
+        "subcategory": "Treatment Recommendations"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_024.jpeg",
+        "gallery": [
+          "model_img_071.jpeg",
+          "model_img_072.jpeg",
+          "model_img_073.jpeg"
+        ]
+      },
+      "data": {
+        "title": "LOS Forecaster",
+        "desc": "Hospital length-of-stay prediction at admission time using diagnosis, demographics, and comorbidity data.",
+        "status": "PUBLISHED",
+        "category": "Clinical Decision Support",
+        "tags": [
+          "Real-time",
+          "Cloud Processing",
+          "High Accuracy",
+          "Low Latency",
+          "FDA Cleared"
+        ],
+        "version": "1.0.0",
+        "price": 99,
+        "deliveryTime": 3,
+        "modality": "Text",
+        "bodyPart": "N/A (Non-Medical)",
+        "indications": "Inpatient bed management and capacity planning.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "Batch Processing",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "MAE (days)",
+            "value": 1
+          },
+          {
+            "metric": "RMSE",
+            "value": 2
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/los"
+          }
+        ],
+        "subcategory": "Drug Interaction Alerts"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_025.jpeg",
+        "gallery": [
+          "model_img_074.jpeg",
+          "model_img_075.jpeg",
+          "model_img_076.jpeg"
+        ]
+      },
+      "data": {
+        "title": "DrugResponse Profiler",
+        "desc": "Pharmacogenomics drug response prediction from genetic variant data. Covers 120+ commonly prescribed medications.",
+        "status": "PUBLISHED",
+        "category": "Telemedicine and Remote Monitoring",
+        "tags": [
+          "HIPAA Compliant",
+          "Low Latency",
+          "REST API Access",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 279,
+        "deliveryTime": 5,
+        "modality": "Audio",
+        "bodyPart": "Brain",
+        "indications": "Precision medicine programs and personalized dosing guidance.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "VCF File Input",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 86
+          },
+          {
+            "metric": "Coverage (drugs)",
+            "value": 120
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/drugresponse"
+          }
+        ],
+        "subcategory": "Teleconsultation"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_026.jpeg",
+        "gallery": [
+          "model_img_077.jpeg",
+          "model_img_078.jpeg",
+          "model_img_079.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ChurnPredict Clinical",
+        "desc": "Patient disengagement and care drop-out early warning model. Identifies at-risk patients before they disengage.",
+        "status": "PUBLISHED",
+        "category": "Telemedicine and Remote Monitoring",
+        "tags": [
+          "Edge Deployment",
+          "Batch Processing",
+          "Research Only"
+        ],
+        "version": "1.0.0",
+        "price": 79,
+        "deliveryTime": 2,
+        "modality": "Tabular",
+        "bodyPart": "Chest",
+        "indications": "Patient retention programs in chronic disease management.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "REST API Access",
+          "SHAP Explanations"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 79
+          },
+          {
+            "metric": "Precision at 20%",
+            "value": 51
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/churn"
+          }
+        ],
+        "subcategory": "Remote Vital Signs Monitoring"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_027.jpeg",
+        "gallery": [
+          "model_img_080.jpeg",
+          "model_img_081.jpeg",
+          "model_img_082.jpeg"
+        ]
+      },
+      "data": {
+        "title": "FraudDetect Claims",
+        "desc": "Medical billing fraud and anomaly detection from claims data. Flags suspicious patterns for investigator review.",
+        "status": "PUBLISHED",
+        "category": "Telemedicine and Remote Monitoring",
+        "tags": [
+          "Fast",
+          "FDA Cleared",
+          "Research Only"
+        ],
+        "version": "1.0.0",
+        "price": 169,
+        "deliveryTime": 3,
+        "modality": "Video",
+        "bodyPart": "Lungs",
+        "indications": "Health insurance fraud detection and claims audit.",
+        "fda": false,
+        "features": [
+          "Real-time Inference",
+          "REST API Access",
+          "Batch Processing"
+        ],
+        "metrics": [
+          {
+            "metric": "Precision",
+            "value": 87
+          },
+          {
+            "metric": "Recall",
+            "value": 79
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/fraud"
+          }
+        ],
+        "subcategory": "Wearable Device Integration"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_028.jpg",
+        "gallery": [
+          "model_img_083.jpeg",
+          "model_img_084.jpeg"
+        ]
+      },
+      "data": {
+        "title": "GeneVariant Classifier",
+        "desc": "Pathogenic variant significance classification (Pathogenic / Likely Pathogenic / VUS / Benign) from VCF input.",
+        "status": "PUBLISHED",
+        "category": "Pathology and Histopathology",
+        "tags": [
+          "Fast",
+          "Research Only",
+          "Cloud Processing",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 319,
+        "deliveryTime": 5,
+        "modality": "MRI",
+        "bodyPart": "Heart",
+        "indications": "Germline variant interpretation for clinical genetics and oncology.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "ClinVar Integration",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 93
+          },
+          {
+            "metric": "VUS Resolution Rate",
+            "value": 67
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/variant"
+          }
+        ],
+        "subcategory": "Cancer Detection"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_029.webp",
+        "gallery": [
+          "model_img_086.jpg",
+          "model_img_087.webp"
+        ]
+      },
+      "data": {
+        "title": "SurvivalCurve Modeler",
+        "desc": "Cancer survival probability modeling using Cox PH and deep survival architectures. Generates Kaplan-Meier–style outputs.",
+        "status": "PUBLISHED",
+        "category": "Pathology and Histopathology",
+        "tags": [
+          "HIPAA Compliant",
+          "REST API Access",
+          "Low Latency"
+        ],
+        "version": "1.0.0",
+        "price": 229,
+        "deliveryTime": 4,
+        "modality": "CT",
+        "bodyPart": "Liver",
+        "indications": "Oncology prognosis communication and clinical trial stratification.",
+        "fda": false,
+        "features": [
+          "Cloud Processing",
+          "Survival Curve Output",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "C-Index",
+            "value": 74
+          },
+          {
+            "metric": "IBS",
+            "value": 14
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/survival"
+          }
+        ],
+        "subcategory": "Tissue Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_030.webp",
+        "gallery": [
+          "model_img_089.jpg",
+          "model_img_001.jpeg"
+        ]
+      },
+      "data": {
+        "title": "CostRisk Estimator",
+        "desc": "Patient treatment cost risk stratification model. Predicts high-cost episodes 90 days in advance from claims history.",
+        "status": "PUBLISHED",
+        "category": "Pathology and Histopathology",
+        "tags": [
+          "HIPAA Compliant",
+          "Fast",
+          "Edge Deployment",
+          "Batch Processing",
+          "High Accuracy"
+        ],
+        "version": "1.0.0",
+        "price": 119,
+        "deliveryTime": 2,
+        "modality": "X-RAY",
+        "bodyPart": "Kidney",
+        "indications": "Population health management and care management program targeting.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Cloud Processing",
+          "SHAP Explanations"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 83
+          },
+          {
+            "metric": "Top-Decile Lift",
+            "value": 4
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.genomeforge-seed.com/v1/cost"
+          }
+        ],
+        "subcategory": "Digital Pathology"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_031.jpg",
+        "gallery": [
+          "model_img_003.png",
+          "model_img_004.jpeg",
+          "model_img_005.jpeg"
+        ]
+      },
+      "data": {
+        "title": "ChestScan Classifier V2",
+        "desc": "Chest X-ray classification model for pneumonia, pleural effusion, and cardiomegaly detection. Trained on 100k+ labeled radiographs.",
+        "status": "PUBLISHED",
+        "category": "Genomics and Personalized Medicine",
+        "tags": [
+          "Research Only",
+          "Batch Processing",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 149,
+        "deliveryTime": 2,
+        "modality": "Ultrasound",
+        "bodyPart": "Full Body",
+        "indications": "Screening for acute chest pathology in emergency and outpatient settings.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 94
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 91
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/chestscan"
+          }
+        ],
+        "subcategory": "Genetic Risk Assessment"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_032.jpg",
+        "gallery": [
+          "model_img_006.jpeg",
+          "model_img_007.png"
+        ]
+      },
+      "data": {
+        "title": "RetinAI Grader V2",
+        "desc": "Automated diabetic retinopathy severity grading from fundus photographs. Returns ETDRS grade with heatmap overlay.",
+        "status": "PUBLISHED",
+        "category": "Genomics and Personalized Medicine",
+        "tags": [
+          "Edge Deployment",
+          "Real-time",
+          "Batch Processing"
+        ],
+        "version": "1.0.0",
+        "price": 199,
+        "deliveryTime": 3,
+        "modality": "PET",
+        "bodyPart": "N/A (Non-Medical)",
+        "indications": "Annual diabetic eye screening programs.",
+        "fda": false,
+        "features": [
+          "Batch Processing",
+          "Explainability Heatmaps",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "AUC-ROC",
+            "value": 97
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 93
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/retinai"
+          }
+        ],
+        "subcategory": "Pharmacogenomics"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_033.webp",
+        "gallery": [
+          "model_img_009.png",
+          "model_img_010.jpg"
+        ]
+      },
+      "data": {
+        "title": "SkinLesion Detector V2",
+        "desc": "Dermoscopy image segmentation and classification for melanoma vs benign lesion differentiation.",
+        "status": "PUBLISHED",
+        "category": "Genomics and Personalized Medicine",
+        "tags": [
+          "Cloud Processing",
+          "Real-time",
+          "High Accuracy",
+          "HIPAA Compliant"
+        ],
+        "version": "1.0.0",
+        "price": 89,
+        "deliveryTime": 2,
+        "modality": "Text",
+        "bodyPart": "Brain",
+        "indications": "Point-of-care dermoscopy screening in dermatology clinics.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Accuracy",
+            "value": 91
+          },
+          {
+            "metric": "F1 Score",
+            "value": 88
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/skinlesion"
+          }
+        ],
+        "subcategory": "Precision Medicine"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_034.jpeg",
+        "gallery": [
+          "model_img_012.jpg",
+          "model_img_013.jpg"
+        ]
+      },
+      "data": {
+        "title": "FractureDetect Pro V2",
+        "desc": "Orthopedic fracture localization and classification from plain X-rays. Supports long bones, wrist, and ankle.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "HIPAA Compliant",
+          "Cloud Processing",
+          "Low Latency",
+          "Fast"
+        ],
+        "version": "1.0.0",
+        "price": 129,
+        "deliveryTime": 2,
+        "modality": "Audio",
+        "bodyPart": "Chest",
+        "indications": "Emergency department triage and urgent care fracture screening.",
+        "fda": true,
+        "fdaUrl": "https://fda.gov/seed-fracture-detect-510k",
+        "features": [
+          "DICOM Integration",
+          "REST API Access",
+          "Sub-second inference"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 95
+          },
+          {
+            "metric": "Specificity",
+            "value": 93
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/fracture"
+          }
+        ],
+        "subcategory": "Object Detection"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_035.jpeg",
+        "gallery": [
+          "model_img_015.jpeg",
+          "model_img_016.jpg",
+          "model_img_017.webp"
+        ]
+      },
+      "data": {
+        "title": "BrainTumor Delineator V2",
+        "desc": "MRI brain tumor boundary delineation using a 3D U-Net architecture. Returns voxel-level segmentation mask.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "Real-time",
+          "HIPAA Compliant",
+          "Fast"
+        ],
+        "version": "1.0.0",
+        "price": 299,
+        "deliveryTime": 5,
+        "modality": "Tabular",
+        "bodyPart": "Lungs",
+        "indications": "Preoperative tumor volume measurement and treatment planning.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Cloud Processing",
+          "3D Volume Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Dice Score",
+            "value": 89
+          },
+          {
+            "metric": "Sensitivity",
+            "value": 87
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/braintumor"
+          }
+        ],
+        "subcategory": "Image Segmentation"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_036.jpeg",
+        "gallery": [
+          "model_img_018.webp",
+          "model_img_019.png",
+          "model_img_020.jpeg"
+        ]
+      },
+      "data": {
+        "title": "PolyScope AI V2",
+        "desc": "Real-time colonoscopy polyp detection model. Processes live video stream and flags polyp regions with bounding boxes.",
+        "status": "PUBLISHED",
+        "category": "Computer Vision",
+        "tags": [
+          "FDA Cleared",
+          "Real-time",
+          "Batch Processing",
+          "Low Latency",
+          "Edge Deployment"
+        ],
+        "version": "1.0.0",
+        "price": 249,
+        "deliveryTime": 3,
+        "modality": "Video",
+        "bodyPart": "Heart",
+        "indications": "Assisted colonoscopy polyp detection for gastroenterology.",
+        "fda": false,
+        "features": [
+          "Real-time Inference",
+          "REST API Access",
+          "Bounding Box Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 92
+          },
+          {
+            "metric": "Miss Rate",
+            "value": 8
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/polyscope"
+          }
+        ],
+        "subcategory": "Image Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_01",
+      "files": {
+        "cover": "model_img_037.jpeg",
+        "gallery": [
+          "model_img_021.jpeg",
+          "model_img_022.jpeg",
+          "model_img_023.jpeg"
+        ]
+      },
+      "data": {
+        "title": "MammoScreen Pro V2",
+        "desc": "Mammography mass detection and BI-RADS category scoring. Provides finding coordinates and confidence scores.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "Real-time",
+          "REST API Access",
+          "Cloud Processing",
+          "Research Only"
+        ],
+        "version": "1.0.0",
+        "price": 179,
+        "deliveryTime": 3,
+        "modality": "MRI",
+        "bodyPart": "Liver",
+        "indications": "Screening mammography programs and recall reduction.",
+        "fda": true,
+        "fdaUrl": "https://fda.gov/seed-mammoscreen-510k",
+        "features": [
+          "DICOM Integration",
+          "BI-RADS Scoring",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 88
+          },
+          {
+            "metric": "Specificity",
+            "value": 90
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/mammoscreen"
+          }
+        ],
+        "subcategory": "Text Classification"
+      }
+    },
+    {
+      "_assignedTo": "dev_02",
+      "files": {
+        "cover": "model_img_038.jpeg",
+        "gallery": [
+          "model_img_024.jpeg",
+          "model_img_025.jpeg",
+          "model_img_026.jpeg"
+        ]
+      },
+      "data": {
+        "title": "EchoFraction Estimator V2",
+        "desc": "Echocardiogram ejection fraction estimation from 2D apical four-chamber views. No manual tracing required.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "Batch Processing",
+          "Fast",
+          "High Accuracy"
+        ],
+        "version": "1.0.0",
+        "price": 159,
+        "deliveryTime": 2,
+        "modality": "CT",
+        "bodyPart": "Kidney",
+        "indications": "Rapid EF assessment in cardiology and ICU settings.",
+        "fda": false,
+        "features": [
+          "REST API Access",
+          "Sub-second inference",
+          "DICOM Integration"
+        ],
+        "metrics": [
+          {
+            "metric": "MAE (EF%)",
+            "value": 4
+          },
+          {
+            "metric": "Correlation",
+            "value": 95
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/echo"
+          }
+        ],
+        "subcategory": "Named Entity Recognition"
+      }
+    },
+    {
+      "_assignedTo": "dev_03",
+      "files": {
+        "cover": "model_img_039.jpeg",
+        "gallery": [
+          "model_img_027.jpeg",
+          "model_img_028.jpg",
+          "model_img_029.webp"
+        ]
+      },
+      "data": {
+        "title": "NoduleTracker CT V2",
+        "desc": "Lung nodule detection and longitudinal growth tracking from chest CT series. Supports Lung-RADS output.",
+        "status": "PUBLISHED",
+        "category": "NLP / Text",
+        "tags": [
+          "Low Latency",
+          "FDA Cleared",
+          "Edge Deployment",
+          "Real-time"
+        ],
+        "version": "1.0.0",
+        "price": 219,
+        "deliveryTime": 4,
+        "modality": "X-RAY",
+        "bodyPart": "Full Body",
+        "indications": "Lung cancer screening programs and incidental nodule follow-up.",
+        "fda": false,
+        "features": [
+          "DICOM Integration",
+          "Cloud Processing",
+          "Lung-RADS Output"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 96
+          },
+          {
+            "metric": "False Positive Rate",
+            "value": 5
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/nodule"
+          }
+        ],
+        "subcategory": "Summarization"
+      }
+    },
+    {
+      "_assignedTo": "dev_04",
+      "files": {
+        "cover": "model_img_040.jpeg",
+        "gallery": [
+          "model_img_030.webp",
+          "model_img_031.jpg",
+          "model_img_032.jpg"
+        ]
+      },
+      "data": {
+        "title": "OphthAI Screener V2",
+        "desc": "Diabetic macular edema grading from color fundus images. Returns DME grade and referral recommendation.",
+        "status": "PUBLISHED",
+        "category": "Generative AI",
+        "tags": [
+          "Batch Processing",
+          "Research Only",
+          "Cloud Processing",
+          "Fast"
+        ],
+        "version": "1.0.0",
+        "price": 99,
+        "deliveryTime": 2,
+        "modality": "Ultrasound",
+        "bodyPart": "N/A (Non-Medical)",
+        "indications": "Community diabetic eye screening, optometry referral triage.",
+        "fda": false,
+        "features": [
+          "Edge Deployment",
+          "Sub-second inference",
+          "REST API Access"
+        ],
+        "metrics": [
+          {
+            "metric": "Sensitivity",
+            "value": 90
+          },
+          {
+            "metric": "Specificity",
+            "value": 88
+          }
+        ],
+        "assets": [
+          {
+            "type": "API_ENDPOINT",
+            "value": "https://api.medai-seed.com/v1/opth"
+          }
+        ],
+        "subcategory": "Text Generation"
+      }
+    }
+  ]
 }
