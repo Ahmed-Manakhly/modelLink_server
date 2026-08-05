@@ -42,3 +42,16 @@ docker compose up -d --build
 # Phase 3: Post-Deployment Verification & Cache Warming
 bash ./scripts/warm-cache.sh
 ```
+
+---
+
+## 7.4 Host-Level Nginx Reverse Proxy Gateway (Multi-Tenant VPS)
+
+ModelLink operates on a shared VPS that hosts multiple independent applications. To manage this multi-tenant architecture, a **Host-Level Nginx Gateway** is used to route traffic before it ever hits the Docker containers.
+
+1. **Host Nginx**: Sits directly on the VPS (outside Docker) listening on ports `80` and `443`.
+2. **Domain Routing**: It intercepts requests for `www.modellink.manakhly.tech` and `api.modellink.manakhly.tech`.
+3. **SSL Termination**: The host Nginx handles Let's Encrypt SSL certificates (Certbot) for all hosted applications, stripping the SSL and passing plain HTTP traffic downstream.
+4. **Internal Routing**: For ModelLink traffic, the host Nginx acts as a reverse proxy, forwarding the traffic internally to ModelLink's Docker Compose exposed ports (e.g., the frontend React container or backend Node container).
+
+This ensures ModelLink can securely co-exist on the same physical VPS alongside your other portfolio projects without port collisions.

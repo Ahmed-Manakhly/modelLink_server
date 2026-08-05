@@ -8,6 +8,13 @@
 
 ---
 
+## 🚀 Quick Start & How to Use
+
+Looking to just run the app, seed the database, or run the tests?
+👉 **[Read the Full QUICKSTART Guide (Shared BE/FE)](./QUICKSTART.md)**
+
+---
+
 ## 📖 Production Documentation Framework
 
 The backend service contains complete, empirical system documentation organized inside the [`docs/`](./docs) directory:
