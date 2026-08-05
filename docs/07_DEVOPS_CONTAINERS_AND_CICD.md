@@ -63,7 +63,7 @@ A critical architectural requirement of the host VPS is **multi-app container ho
 │  │                                                                                   │  │
 │  │  ┌───────────────────────────────┐        ┌───────────────────────────────────┐   │  │
 │  │  │ Domain: modellink.manakhly.tech│        │ Domain: other-app.manakhly.tech   │   │  │
-│  │  │ proxy_pass http://127.0.0.1:8000│        │ proxy_pass http://127.0.0.1:9000 │   │  │
+│  │  │ proxy_pass http://127.0.0.1:8080│        │ proxy_pass http://127.0.0.1:9000 │   │  │
 │  │  └──────────────┬────────────────┘        └─────────────────┬─────────────────┘   │  │
 │  └─────────────────┼───────────────────────────────────────────┼─────────────────────┘  │
 │                    │                                           │                        │
@@ -72,7 +72,7 @@ A critical architectural requirement of the host VPS is **multi-app container ho
 │ │                                             │ │                                      │ │
 │ │  ┌───────────────────────────────────────┐  │ │  ┌────────────────────────────────┐  │ │
 │ │  │ Nginx Gateway Container               │  │ │  │ App Container (Port 9000)      │  │ │
-│ │  │ Exposed Port: 127.0.0.1:8000 -> 8080   │  │ │  └────────────────────────────────┘  │ │
+│ │  │ Exposed Port: 127.0.0.1:8080 -> 80   │  │ │  └────────────────────────────────┘  │ │
 │ │  │ Rate Limiting, Static /public/ files  │  │ │                                      │ │
 │ │  └──────────────────┬────────────────────┘  │ └──────────────────────────────────────┘ │
 │ │                     │                       │                                          │

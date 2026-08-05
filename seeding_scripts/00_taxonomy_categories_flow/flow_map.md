@@ -17,7 +17,7 @@ Seed the master taxonomy that ALL other flows depend on. No model can be publish
 
 ## Prerequisites
 
-- Flow 01 must have completed successfully. Admin account `admin@modelLink.com` must exist in DB.
+- Admin account `admin@modelLink.com` must exist in DB (created via server bootstrap).
 - Server must be running (for API calls + file copy).
 
 ---
@@ -146,7 +146,7 @@ await prisma.category.deleteMany({}); // cascade removes subcategories
 
 ## Dependencies
 
-- **Flow 01** (Auth): Must exist before this flow (admin account required)
+- **Admin Account**: Must exist before this flow (created via server bootstrap)
 - **Flow 03** (Model Publishing): Must run AFTER this flow (models reference categories)
 
 ---

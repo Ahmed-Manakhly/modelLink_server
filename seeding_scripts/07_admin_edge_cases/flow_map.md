@@ -80,4 +80,4 @@ This ensures edge cases like DMCA takedowns, quality violations, and admin-featu
 
 **Expected DB side-effects:**
 
-- The specified `AiModel` records have their `isFeatured` flag set to `true`.
+- The specified `AiModel` records have their `featured` flag set to `true`.

@@ -240,8 +240,8 @@ cd modelLink_server && npm test
 
 ## 🧪 Postman Collection
 
-**Path:** `modelLink_planning/reference/ModelLink.postman_collection.json`
-> 116 requests across 17 folders, aligned with all current routes.
+**Path:** `modelLink_server/postman/ModelLink.postman_collection.json`
+> 120 requests across 17 folders, aligned with all current routes.
 
 - **Automated Workflows**: Login saves `jwt_token`, `user_id`. Logout clears them. Creating entities automatically saves IDs.
 - **Variables**: `base_url`, `jwt_token`, `user_id`, `model_id`, `order_id`, etc.
@@ -252,5 +252,3 @@ cd modelLink_server && npm test
 2. Confirm `base_url` variable is set to `http://localhost:8000/api`.
 3. Run `1. Auth → Login`.
 4. Run other requests! IDs will chain automatically via test scripts.
-
-> To regenerate: `node modelLink_planning/reference/generate-postman-collection.js`
