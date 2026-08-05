@@ -24,6 +24,7 @@ The backend service contains complete, empirical system documentation organized 
 | 📄 **[00_STAFF_LEVEL_ARCHITECTURE_GUIDE.md](./docs/00_STAFF_LEVEL_ARCHITECTURE_GUIDE.md)**   | Consolidated staff-level architecture guide, production domain mapping, and discrepancy audit index.               |
 | 📄 **[01_PROJECT_OVERVIEW.md](./docs/01_PROJECT_OVERVIEW.md)**                               | High-level system overview, core architectural features, verified technologies, and live demo boundaries.          |
 | 📄 **[02_PORTFOLIO_CASE_STUDY.md](./docs/02_PORTFOLIO_CASE_STUDY.md)**                       | Technical case study highlighting Stripe Connect integration challenges and sandboxed containment.                 |
+| 📄 **[02b_PRODUCT_REQUIREMENTS_SPARK.md](./docs/02b_PRODUCT_REQUIREMENTS_SPARK.md)**         | The foundational PRD, Functional Requirements, Policies, and User Journeys that dictate the system architecture.   |
 | 📄 **[03_HIGH_LEVEL_DESIGN_HLD.md](./docs/03_HIGH_LEVEL_DESIGN_HLD.md)**                     | Component topologies, data flow layouts, authentication, and Socket.io messaging sequence charts.                  |
 | 📄 **[04_DATABASE_DESIGN_AND_LEDGER.md](./docs/04_DATABASE_DESIGN_AND_LEDGER.md)**           | Relational database schema structures, entity relationship indices, and append-only ledger transaction math.       |
 | 📄 **[05_FEATURE_DEEP_DIVES_AND_LLD.md](./docs/05_FEATURE_DEEP_DIVES_AND_LLD.md)**           | Detailed designs: Stripe Webhooks, Socket.io per-user room structures, and time-limited asset delivery signatures. |

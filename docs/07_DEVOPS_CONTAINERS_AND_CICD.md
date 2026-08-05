@@ -47,6 +47,55 @@ bash ./scripts/warm-cache.sh
 
 ## 7.4 Host-Level Nginx Reverse Proxy Gateway (Multi-Tenant VPS)
 
+A critical architectural requirement of the host VPS is **multi-app container hosting on a single Ubuntu server** handling multiple independent domain names and subdomains (`modellink.manakhly.tech`, `api.modellink.manakhly.tech`, etc.) without container port overlap or security leaks.
+
+> This ASCII fallback diagram is provided for IDEs that do not support Mermaid.js rendering.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 HOST VPS (Ubuntu 24.04 LTS)                             │
+│                                2 vCPU / 8 GB RAM / Hostinger                            │
+│                                                                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                    Host-Level Nginx Reverse Proxy (Edge Gateway)                  │  │
+│  │  Ports: 80 (HTTP) & 443 (HTTPS)                                                   │  │
+│  │  SSL: Let's Encrypt / Certbot Auto-Renew (Managed strictly at host layer)          │  │
+│  │                                                                                   │  │
+│  │  ┌───────────────────────────────┐        ┌───────────────────────────────────┐   │  │
+│  │  │ Domain: modellink.manakhly.tech│        │ Domain: other-app.manakhly.tech   │   │  │
+│  │  │ proxy_pass http://127.0.0.1:8000│        │ proxy_pass http://127.0.0.1:9000 │   │  │
+│  │  └──────────────┬────────────────┘        └─────────────────┬─────────────────┘   │  │
+│  └─────────────────┼───────────────────────────────────────────┼─────────────────────┘  │
+│                    │                                           │                        │
+│ ┌──────────────────▼──────────────────────────┐ ┌──────────────▼──────────────────────┐ │
+│ │  ModelLink Stack (Docker Network)           │ │  Other App Stack (Isolated Docker)   │ │
+│ │                                             │ │                                      │ │
+│ │  ┌───────────────────────────────────────┐  │ │  ┌────────────────────────────────┐  │ │
+│ │  │ Nginx Gateway Container               │  │ │  │ App Container (Port 9000)      │  │ │
+│ │  │ Exposed Port: 127.0.0.1:8000 -> 8080   │  │ │  └────────────────────────────────┘  │ │
+│ │  │ Rate Limiting, Static /public/ files  │  │ │                                      │ │
+│ │  └──────────────────┬────────────────────┘  │ └──────────────────────────────────────┘ │
+│ │                     │                       │                                          │
+│ │  ┌──────────────────▼────────────────────┐  │                                          │
+│ │  │ Backend Express Container             │  │                                          │
+│ │  │ Internal Port: 8000                   │  │                                          │
+│ │  │ Node 20 Alpine (User: modelLink:1001) │  │                                          │
+│ │  └──────────────────┬────────────────────┘  │                                          │
+│ │                     │                       │                                          │
+│ │  ┌──────────────────▼────────────────────┐  │                                          │
+│ │  │ PostgreSQL 17 Container               │  │                                          │
+│ │  │ Internal Port: 5432                   │  │                                          │
+│ │  │ AppArmor: modellink-restrict-db       │  │                                          │
+│ │  └───────────────────────────────────────┘  │                                          │
+│ └─────────────────────────────────────────────┘                                          │
+│                                                                                          │
+│ ┌──────────────────────────────────────────────────────────────────────────────────────┐ │
+│ │              GitHub Actions Self-Hosted Runner (user: github-runner)                 │ │
+│ │              Restricted Sudo Profile for AppArmor Profile Loading                    │ │
+│ └──────────────────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
 ModelLink operates on a shared VPS that hosts multiple independent applications. To manage this multi-tenant architecture, a **Host-Level Nginx Gateway** is used to route traffic before it ever hits the Docker containers.
 
 1. **Host Nginx**: Sits directly on the VPS (outside Docker) listening on ports `80` and `443`.

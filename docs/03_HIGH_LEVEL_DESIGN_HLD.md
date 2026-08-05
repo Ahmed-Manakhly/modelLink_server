@@ -5,7 +5,42 @@
 
 ---
 
-## 3.1 System Context Diagram
+## 3.1 B2B Marketplace Workflow (ASCII Diagram)
+
+> This ASCII fallback diagram is provided for IDEs that do not support Mermaid.js rendering.
+
+```text
+  [Developer]          [Marketplace Platform]         [Client / Buyer]
+       │                          │                          │
+       ├─► List AI Model ────────►│                          │
+       │   (Weights/Docker/API)   │                          │
+       │                          │◄─ Browser & Search Model─┤
+       │                          │                          │
+       │                          │◄─ Create Order & Pay ────┤
+       │                          │   (Stripe Elements Form) │
+       │                          │                          │
+       │                          │◄── Webhook Confirms ─────┤
+       │                          │    Payment (Stripe API)  │
+       │                          ▼                          │
+       │                   [Secure Ledger]                   │
+       │               • Create Transaction                  │
+       │               • Authorize Asset Link                │
+       │                          │                          │
+       │                          ├─────────────────────────►│
+       │                          │  Expose Download Link    │
+       │                          │  & Delivery Files        │
+       │                          │                          │
+       │                          │◄─ Leave Model Review ────┤
+       │                          ▼                          │
+       │                   [Platform Ledger]                 │
+       │               • Split & Deposit Earnings            │
+       │               • Deduct System Fees                  │
+       ▼                          ▼                          ▼
+```
+
+---
+
+## 3.2 System Context Diagram (Mermaid)
 
 ```mermaid
 flowchart TD
