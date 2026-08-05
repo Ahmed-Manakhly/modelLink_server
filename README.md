@@ -1,69 +1,50 @@
-# ModelLink Server
+# 🚀 ModelLink Backend Service Engine
 
-REST API and WebSocket backend for **ModelLink** — a two-sided marketplace where AI model developers publish models and healthcare clients browse, purchase, and review them.
+> **Staff-Level Software Engineering Portfolio Project**
+>
+> Architected, implemented, and maintained by **Ahmed Manakhly** ([manakhly.tech](https://manakhly.tech) | [GitHub Profile](https://github.com/Ahmed-Manakhly))
+>
+> 🌐 **Live Demo Application**: [https://www.modellink.manakhly.tech/](https://www.modellink.manakhly.tech/)
 
-## Stack
+---
 
-- Node.js + Express
-- PostgreSQL + Prisma (`prisma db push` for schema sync)
-- Socket.IO for realtime chat and notifications
-- Stripe (optional in demo mode)
+## 📖 Production Documentation Framework
 
-## Quick start
+The backend service contains complete, empirical system documentation organized inside the [`docs/`](./docs) directory:
+
+| Document File                                                                                | Architecture Scope                                                                                                 |
+| :------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| 📄 **[00_STAFF_LEVEL_ARCHITECTURE_GUIDE.md](./docs/00_STAFF_LEVEL_ARCHITECTURE_GUIDE.md)**   | Consolidated staff-level architecture guide, production domain mapping, and discrepancy audit index.               |
+| 📄 **[01_PROJECT_OVERVIEW.md](./docs/01_PROJECT_OVERVIEW.md)**                               | High-level system overview, core architectural features, verified technologies, and live demo boundaries.          |
+| 📄 **[02_PORTFOLIO_CASE_STUDY.md](./docs/02_PORTFOLIO_CASE_STUDY.md)**                       | Technical case study highlighting Stripe Connect integration challenges and sandboxed containment.                 |
+| 📄 **[03_HIGH_LEVEL_DESIGN_HLD.md](./docs/03_HIGH_LEVEL_DESIGN_HLD.md)**                     | Component topologies, data flow layouts, authentication, and Socket.io messaging sequence charts.                  |
+| 📄 **[04_DATABASE_DESIGN_AND_LEDGER.md](./docs/04_DATABASE_DESIGN_AND_LEDGER.md)**           | Relational database schema structures, entity relationship indices, and append-only ledger transaction math.       |
+| 📄 **[05_FEATURE_DEEP_DIVES_AND_LLD.md](./docs/05_FEATURE_DEEP_DIVES_AND_LLD.md)**           | Detailed designs: Stripe Webhooks, Socket.io per-user room structures, and time-limited asset delivery signatures. |
+| 📄 **[06_SECURITY_LOGGING_AND_APPARMOR.md](./docs/06_SECURITY_LOGGING_AND_APPARMOR.md)**     | Host-level AppArmor security profile sources, brute-force lockout rules, and Pino logger rotations.                |
+| 📄 **[07_DEVOPS_CONTAINERS_AND_CICD.md](./docs/07_DEVOPS_CONTAINERS_AND_CICD.md)**           | Multi-container Docker Compose setup, host-level Nginx gateway configuration, and GitHub Actions CD pipeline.      |
+| 📄 **[08_ENVIRONMENT_SEEDING_AND_TESTING.md](./docs/08_ENVIRONMENT_SEEDING_AND_TESTING.md)** | Three-environment variables matrix, two-file seeding bot engine, and 16 integration tests specification.           |
+| 📄 **[09_ENVIRONMENT_OPERATIONS_RUNBOOK.md](./docs/09_ENVIRONMENT_OPERATIONS_RUNBOOK.md)**   | Practical runbook for local Stripe forwarding, database cleaners index, and Postman collection setups.             |
+
+---
+
+## ⚡ Quickstart Backend Commands
 
 ```bash
-cp .env.example .env   # edit secrets; set MARKETPLACE_DEMO=true for local demo
+# 1. Install server dependencies
 npm install
-./start-db-only.dev.sh # Docker Postgres + PgAdmin
-npm start              # http://localhost:8000
+
+# 2. Run initial database migration setup
+npx prisma db push
+
+# 3. Populate database with initial mock seed profiles
+node seeding_scripts/run_all.js
+
+# 4. Start local development server
+npm start
 ```
 
-Bootstrap creates an admin user from `ADMIN_EMAIL` / `ADMIN_PASSWORD` on first run.
+---
 
-## Portfolio demo mode
+## 📜 License & Copyright Attribution
 
-Set `MARKETPLACE_DEMO=true` in `.env` to run without real Stripe charges. Mock checkout and Connect onboarding are used for reviewers.
-
-Pair with the client repo: set `REACT_APP_MARKETPLACE_DEMO=true` there as well.
-
-## Tests
-
-Server must be running on port 8000:
-
-```bash
-npm test   # 121 integration tests (Mocha + Supertest)
-```
-
-## Key routes
-
-| Area | Base path |
-| ------ | ----------- |
-| Auth / users | `/users` |
-| Models | `/aiModels` |
-| Orders | `/orders` |
-| Reviews | `/reviews` |
-| Wallet / payouts | `/wallet`, `/stripeConnect` |
-| Admin | `/admin` |
-
-See `../modelLink_planning/reference/ModelLink.postman_collection.json` for the full API collection.
-
-## Environment
-
-Copy `.env.example` → `.env`. Never commit `.env`.
-
-| Variable | Purpose |
-| ---------- | --------- |
-| `DATABASE_URL` | PostgreSQL connection |
-| `MARKETPLACE_DEMO` | Skip real Stripe in development |
-| `STRIPE` | Stripe secret key (production) |
-| `JWT_SECRET` / `ACCESS_SECRET_STR` | Auth tokens |
-| `ENCRYPTION_KEY` | 32-char key for sensitive fields |
-
-## Related repos
-
-- **Client:** `modelLink_client` — React SPA
-- **Planning:** private repo with sprint history and pre-push gate (`pre-push/`)
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+Distributed under the **MIT License**. Copyright (c) 2026 **Ahmed Manakhly** ([manakhly.tech](https://manakhly.tech) \| [GitHub Profile](https://github.com/Ahmed-Manakhly)). See [LICENSE](LICENSE) for full details.

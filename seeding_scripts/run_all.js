@@ -2,7 +2,7 @@
 /**
  * ModelLink Seeding Orchestrator
  * ============================================================
- * Runs all 9 flows in order (fresh session)
+ * Runs all 10 orchestrations in order (fresh session)
  * between runs.
  *
  * Commands:

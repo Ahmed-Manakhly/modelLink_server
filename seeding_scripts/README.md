@@ -22,23 +22,30 @@ seeding_scripts/
 │
 ├── README.md                          ← You are here. Master briefing doc.
 │
+├── 00_taxonomy_categories_flow/         ← Taxonomy and Categories
+│   ├── flow_map.md
+│   ├── data_reference.json
+│   ├── data_input.json
+│   └── bot.js                         ← Execution logic for taxonomy
+│
 ├── 01_auth_profile_flow/              ← Registration, Login, Profile Setup
 │   ├── flow_map.md                    ← DB field → API payload mapping
 │   ├── data_reference.json            ← IMMUTABLE master actor definitions
 │   ├── data_input.json                ← CONSUMABLE session queue (copy from reference)
-│   └── bot.js                         ← [TO BUILD] Executor for this flow
+│   └── bot.js                         ← Execution logic for auth
 │
 ├── 02_developer_verification_flow/    ← Document submission → APPROVED → Wallet created
 │   ├── flow_map.md
 │   ├── data_reference.json
 │   ├── data_input.json
-│   └── bot.js                         ← [TO BUILD]
+│   ├── bot.js                         ← Submit verifications
+│   └── admin_approve.js               ← 02b Admin Approval Flow
 │
-├── 03_model_publishing_flow/          ← Model catalog seeding (extends seed_models_bot.js)
+├── 03_model_publishing_flow/          ← Model catalog seeding
 │   ├── flow_map.md
 │   ├── data_reference.json            ← Full model catalog definitions
 │   ├── data_input.json                ← Queue consumed by bot (removed on success)
-│   └── bot.js                         ← [TO BUILD] (refactor of seed_models_bot.js)
+│   └── bot.js                         ← Execution logic for model publishing
 │
 ├── 03b_model_versions_flow/           ← Multi-version model seeding
 │   ├── flow_map.md
@@ -50,13 +57,25 @@ seeding_scripts/
 │   ├── flow_map.md
 │   ├── data_reference.json            ← Query definitions with assertions
 │   ├── data_input.json                ← Session state (read-only flow)
-│   └── bot.js                         ← [TO BUILD]
+│   └── bot.js                         ← Execution logic for client discovery
 │
 ├── 05_order_transaction_flow/         ← Order → Stripe → Wallet → Review
 │   ├── flow_map.md
 │   ├── data_reference.json            ← Order definitions + financial formula reference
 │   ├── data_input.json                ← Consumable order queue
-│   └── bot.js                         ← [TO BUILD]
+│   └── bot.js                         ← Execution logic for transactions
+│
+├── 06_payout_lifecycle/               ← Wallet withdrawals and admin approvals
+│   ├── flow_map.md
+│   ├── data_reference.json
+│   ├── data_input.json
+│   └── bot.js                         ← Execution logic for payouts
+│
+├── 07_admin_edge_cases/               ← Soft deletes, restore, features
+│   ├── flow_map.md
+│   ├── data_reference.json
+│   ├── data_input.json
+│   └── bot.js                         ← Execution logic for admin moderation
 │
 └── data/                              ← Shared media assets
     ├── MODELS/                        ← Cover images for model seeding (jpg, png, webp)
@@ -126,7 +145,7 @@ Switch environments by editing `data_input.json` (never `data_reference.json`):
 ```json
 {
   "env": {
-    "API_URL": "https://api.modellink.com/api"  ← production
+    "API_URL": "https://www.modellink.manakhly.tech/api"  ← production
   }
 }
 ```

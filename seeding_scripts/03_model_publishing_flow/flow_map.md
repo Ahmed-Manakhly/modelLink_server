@@ -1,28 +1,32 @@
 # Flow 03: Model Publishing (Catalog Architecture)
 
-> **Source Tables:** `AiModel`, `AiModelVersion`, `AiModelFeature`, `AiModelMetric`, `ModelAsset`, `Category`, `Modality`, `BodyPart`
-> **Bot Script:** `03_model_publishing_flow/bot.js` (extends existing `seed_models_bot.js`)
-> **Data Input:** `03_model_publishing_flow/data_input.json` — the consumable session queue
-> **Data Reference:** `03_model_publishing_flow/data_reference.json` — immutable master model catalog
-> **Reset Script:** `03_model_publishing_flow/reset.js`
+> **Source Tables:** `AiModel`, `AiModelVersion`, `AiModelFeature`, `AiModelMetric`, `ModelAsset`, `Category`, `Modality`, `BodyPart`  
+> **Bot Script:** `03_model_publishing_flow/bot.js` (extends existing `seed_models_bot.js`)  
+> **Data Input:** `03_model_publishing_flow/data_input.json` — the consumable session queue  
+> **Data Reference:** `03_model_publishing_flow/data_reference.json` — immutable master model catalog  
+> **Reset Script:** `03_model_publishing_flow/reset.js`  
 > **Media Folder:** `seeding_scripts/data/MODELS/` — local images used as cover/gallery uploads
 
 ---
 
 ## Purpose
+
 Simulate a verified developer publishing AI models to the marketplace.
 This tests the full nested model creation: parent `AiModel` → child `AiModelVersion` →
 `AiModelFeature[]`, `AiModelMetric[]`, `ModelAsset[]`.
 
-> ⚠️ **Prerequisites:**
->   - Flow 00 must have seeded taxonomy (Categories, Modalities, BodyParts must exist in DB)
->   - Flow 02 must be APPROVED. Developer `isVerified` must be `true`.
+> [!IMPORTANT]
+> **Prerequisites**:
+>
+> - Flow 00 must have seeded taxonomy (Categories, Modalities, BodyParts must exist in DB)
+> - Flow 02 must be APPROVED. Developer `isVerified` must be `true`.
 
 ---
 
 ## Actors
-| Actor | Role | Action |
-|---|---|---|
+
+| Actor    | Role                 | Action                  |
+| :------- | :------------------- | :---------------------- |
 | `dev_01` | DEVELOPER (verified) | Publishes 4-5 AI models |
 | `dev_02` | DEVELOPER (verified) | Publishes 4-5 AI models |
 
@@ -31,7 +35,8 @@ This tests the full nested model creation: parent `AiModel` → child `AiModelVe
 ## Data Architecture
 
 ### Parent: `AiModel`
-```
+
+```text
 AiModel {
   title         String         — Descriptive marketing title
   category      String         — Denormalized category name (for fast display)
@@ -52,8 +57,10 @@ AiModel {
 ```
 
 ### Child: `AiModelVersion`
+
 One model can have multiple versions. Only ONE must have `isPrimary: true`.
-```
+
+```text
 AiModelVersion {
   version       String         — SemVer e.g. "1.0.0", "2.1.0"
   isActive      Boolean        — Controls marketplace visibility
@@ -70,8 +77,9 @@ AiModelVersion {
 }
 ```
 
-### Grandchildren (nested inside version):
-```
+### Grandchildren (nested inside version)
+
+```text
 AiModelFeature { feature: String }          — e.g. "Cloud Processing", "DICOM Integration"
 AiModelMetric  { metric: String, value: Float, metricsUrl: String? } — e.g. Accuracy: 98.5
 ModelAsset     { type: AssetType, encryptedValue: String }
@@ -84,19 +92,24 @@ ModelAsset     { type: AssetType, encryptedValue: String }
 ## Step-by-Step Journey
 
 ### STEP 1 — Login as Developer
+
 Same as Flow 01 Step 3. Store `token` and `userId`.
 
 ### STEP 2 — Publish Model
+
 **API:** `POST /api/aiModel` (multipart/form-data)
+
 **Headers:** `Authorization: Bearer {dev_token}`
 
 **Form fields:**
-```
+
+```text
 data    (JSON string)   — Model payload (see data_reference.json for full structure)
 cover   (file)         — Cover image from data/MODELS/ directory
 ```
 
 **JSON payload structure (`data` field):**
+
 ```json
 {
   "title": "AiModel.title",
@@ -128,13 +141,16 @@ cover   (file)         — Cover image from data/MODELS/ directory
 ```
 
 **Bot failure handling (from existing bot):**
+
 - On failure: model added to `data_input.json` remainder (not removed)
 - On success: model removed from `data_input.json` queue
 - On 409/unique conflict: skip (not retried)
 - On 5xx/timeout: retry up to `MAX_RETRIES` with exponential backoff
 
 ### STEP 3 — Verify Model in DB
+
 After each successful POST, bot optionally queries `GET /api/aiModel/:id` to confirm:
+
 - `status === 'PUBLISHED'`
 - `versions[0].isPrimary === true`
 - `versions[0].features.length > 0`
@@ -143,7 +159,8 @@ After each successful POST, bot optionally queries `GET /api/aiModel/:id` to con
 ---
 
 ## File Resolution Strategy (from existing bot)
-```
+
+```text
 1. Check data_input.json > model.files.cover for explicit filename
 2. If found: look in data/MODELS/ directory for that file
 3. If NOT found / directory empty: use DUMMY_PNG_BUFFER (1x1 transparent PNG)
@@ -152,7 +169,9 @@ After each successful POST, bot optionally queries `GET /api/aiModel/:id` to con
 ---
 
 ## Reset Behaviour
+
 `reset.js` runs (order matters — children before parents):
+
 ```js
 await prisma.modelAsset.deleteMany({ where: { version: { aiModel: { developerId: { in: devIds } } } } });
 await prisma.aiModelFeature.deleteMany({ ... });
@@ -165,6 +184,7 @@ await prisma.aiModel.deleteMany({ where: { developerId: { in: devIds } } });
 ---
 
 ## Success Criteria
+
 - [ ] Each developer has published ≥ 4 models
 - [ ] Each model has exactly 1 version with `isPrimary: true`
 - [ ] Each version has ≥ 1 feature, ≥ 1 metric
@@ -178,10 +198,11 @@ await prisma.aiModel.deleteMany({ where: { developerId: { in: devIds } } });
 
 Because standard models created in **Flow 03** only have a single `1.0.0` primary version, an additional script was created to simulate real-world developer updates.
 
-> **Bot Script:** `03b_model_versions_flow/bot.js`
+> **Bot Script:** `03b_model_versions_flow/bot.js`  
 > **Purpose:** Loops through existing published models and creates a 2nd or 3rd version (e.g. `2.0.0`, `v1.2.0-pro`).
 
 **What changes in new versions?**
+
 - **Price:** Might increase for a "Pro" version or decrease for a "Lite" version.
 - **Delivery Time:** Could be faster or slower.
 - **Metrics:** Improved accuracy, better sensitivity values.
@@ -189,6 +210,7 @@ Because standard models created in **Flow 03** only have a single `1.0.0` primar
 - **Assets:** Different API endpoints or Docker images.
 
 **How it works:**
+
 1. Bot queries `GET /api/aiModel/developer/models` to find the models created in Flow 03.
 2. Bot reads `03b_model_versions_flow/data_input.json` to find the specific version overrides.
 3. Bot calls `POST /api/aiModelVersion/:modelId` to attach the new version to the existing model.

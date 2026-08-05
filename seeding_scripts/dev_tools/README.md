@@ -47,28 +47,28 @@ node seeding_scripts/dev_tools/approve_pending_verifications.js --list
 node seeding_scripts/dev_tools/approve_pending_verifications.js --dry-run
 ```
 
-**What it does:** This is a safe "practice" run. It runs through the entire script, finds the pending accounts, and prints out messages like *"Would approve user X"* to the terminal, but it stops right before actually making the API calls to approve them. It’s useful to double-check what the script *is going to do* before you actually let it do it!
+**What it does:** This is a safe "practice" run. It runs through the entire script, finds the pending accounts, and prints out messages like _"Would approve user X"_ to the terminal, but it stops right before actually making the API calls to approve them. It’s useful to double-check what the script _is going to do_ before you actually let it do it!
 
 ### Environment Variables
 
-| Env Variable | Purpose |
-| ------------ | --------- |
-| `API_URL` | Default: `http://localhost:8000/api` |
-| `ADMIN_EMAIL` | Default: `admin@modelLink.com` |
+| Env Variable     | Purpose                                     |
+| ---------------- | ------------------------------------------- |
+| `API_URL`        | Default: `http://localhost:8000/api`        |
+| `ADMIN_EMAIL`    | Default: `admin@modelLink.com`              |
 | `ADMIN_PASSWORD` | Default from taxonomy `data_reference.json` |
 
 ### Troubleshooting “No matching PENDING verifications”
 
 The script now looks up your account directly and prints why nothing was approved:
 
-| Message | What to do |
-| --------- | ------------ |
-| No user found | Register with that email first |
-| Role is CLIENT | Sign up as **DEVELOPER** |
-| No verification record | Profile Settings → upload doc → Submit Verification |
+| Message                 | What to do                                                     |
+| ----------------------- | -------------------------------------------------------------- |
+| No user found           | Register with that email first                                 |
+| Role is CLIENT          | Sign up as **DEVELOPER**                                       |
+| No verification record  | Profile Settings → upload doc → Submit Verification            |
 | PENDING but no document | Upload failed or not submitted — try again in Profile Settings |
-| Already APPROVED | You're verified; refresh the app |
-| REJECTED | Re-submit a corrected document, then run the script again |
+| Already APPROVED        | You're verified; refresh the app                               |
+| REJECTED                | Re-submit a corrected document, then run the script again      |
 
 Inspect the admin queue:
 
@@ -78,9 +78,9 @@ node seeding_scripts/dev_tools/approve_pending_verifications.js --list
 
 ### vs Flow 02b (`admin_approve.js`)
 
-| Script | Scope |
-| -------- | -------- |
-| `dev_tools/approve_pending_verifications.js` | **All** pending verifications (for manual dev testing) |
+| Script                                            | Scope                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| `dev_tools/approve_pending_verifications.js`      | **All** pending verifications (for manual dev testing)             |
 | `02_developer_verification_flow/admin_approve.js` | **Seed devs only** (`seed_dev_01/02/03`) — safe for full seed runs |
 
 Admin credentials (default): `admin@modelLink.com` / `A@1234567891a`
